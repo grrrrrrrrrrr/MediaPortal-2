@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Shortcut DescriptorVersion="1.0">
+  <WorkflowStates>
+    <!-- Name="dialogSystemState" -->
+    <Shortcut Key="S:Power" WorkflowState="BBFA7DB7-5055-48D5-A904-0F0C79849369" />
+  </WorkflowStates>
+  <WorkflowStates>
+    <!-- Name="dialogSleepTimer" -->
+    <!--<Shortcut Key="S:Yellow" WorkflowState="72480EE1-64D7-4BD5-943C-22C6DE2D4A9D" />-->
+  </WorkflowStates>
+</Shortcut>

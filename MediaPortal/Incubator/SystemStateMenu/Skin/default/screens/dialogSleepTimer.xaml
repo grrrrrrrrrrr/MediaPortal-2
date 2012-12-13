@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include xmlns="www.team-mediaportal.com/2008/mpf/directx"
+         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+         Source="screens\master_dialog_bare.xaml">
+
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[SleepTimer.Title]"/>
+
+    <!-- SleepTimerModel -->
+    <Model x:Key="SleepTimerModel"
+           Id="D5513721-92D8-4E45-B988-2C4DBF055B0F"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid x:Name="MainGrid"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            DataContext="{Binding Source={StaticResource SleepTimerModel}}">
+
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Label Grid.Column="0"
+               Grid.Row="0"
+               HorizontalAlignment="Right"
+               VerticalAlignment="Center"
+               Content="Timer: "
+               Color="{ThemeResource TextColor}" />
+        <TextBox Grid.Column="1"
+                 Grid.Row="0"
+                 Margin="10,5,10,5"
+                 HorizontalAlignment="Stretch"
+                 VerticalAlignment="Center"
+                 BorderThickness="1"
+                 Text="{Binding Path=CustomTimeout,Mode=TwoWay}" />
+        <Label Grid.Column="2"
+               Grid.Row="0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Center"
+               Content=" min"
+               Color="{ThemeResource TextColor}" />
+
+        <Label Grid.Column="0"
+               Grid.Row="1"
+               HorizontalAlignment="Right"
+               VerticalAlignment="Center"
+               Content="Action: "
+               Color="{ThemeResource TextColor}" />
+        <Button Grid.Column="1"
+                Grid.Row="1"
+                Grid.ColumnSpan="2"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Content="{Binding CurrentSleepActionText}"
+                Command="{Command ToggleSleepAction}" />
+
+        <ListView Grid.Column="0"
+                  Grid.Row="2"
+                  Grid.ColumnSpan="3"
+                  Style="{ThemeResource SleepTimerListViewStyle}"
+                  ItemsSource="{Binding Path=TimerActions}" />
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>
