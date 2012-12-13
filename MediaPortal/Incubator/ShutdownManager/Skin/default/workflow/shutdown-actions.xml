@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <PushNavigationTransition Id="72480EE1-64D7-4BD5-943C-22C6DE2D4A9D"
+        Name="Home->ShutdownMain"
+        DisplayCategory="b-Shutdown"
+        SortOrder="a"
+        SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        TargetState="BBFA7DB7-5055-48D5-A904-0F0C79849369"
+        DisplayTitle="[Shutdown.MenuItem]"/>
+  </MenuActions>
+  <MenuActions>
+    <PushNavigationTransition Id="A80EC846-279E-4A71-9AB2-C73612D4B6EA"
+        Name="Home->ShutdownTimerMain"
+        DisplayCategory="b-ShutdownTimer"
+        SortOrder="a"
+        SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        TargetState="90FB6BC8-6038-4261-A00F-53774ED11B1A"
+        DisplayTitle="[ShutdownTimer.MenuItem]"/>
+  </MenuActions>
+</Workflow>

@@ -1,0 +1,48 @@
+<Plugin
+    DescriptorVersion="1.0" 
+    Name="ShutdownManager"
+    PluginId="{E5326D7C-698F-48C2-AA15-AD6CCBD1A96F}"
+    Author="chefkoch"
+    Copyright="GPL"
+    Description="The ShutdownManager plugin provides options to shutdown, suspend or restart the PC."
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/>    <!-- SkinEngine -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="ShutdownManager.dll"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="25F16911-ED0D-4439-9858-5E69C970C037"
+           Name="ShutdownDialogModel"
+           ClassName="MediaPortal.Plugins.ShutdownManager.Models.ShutdownDialogModel"/>
+    <Model Id="D5513721-92D8-4E45-B988-2C4DBF055B0F"
+           Name="ShutdownTimerDialogModel"
+           ClassName="MediaPortal.Plugins.ShutdownManager.Models.ShutdownTimerDialogModel"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <DialogState Id="BBFA7DB7-5055-48D5-A904-0F0C79849369"
+                 Name="ShutdownManager"
+                 DialogScreen="dialogShutdown"
+                 DisplayLabel="[ShutdownManager.ShutdownDialogStateDisplayLabel]"
+                 WorkflowModel="25F16911-ED0D-4439-9858-5E69C970C037"/>
+    <!-- ShutdownManager Menu Model -->
+    <DialogState Id="90FB6BC8-6038-4261-A00F-53774ED11B1A"
+                 Name="dialogShutdownTimer"
+                 DialogScreen="dialogShutdownTimer"
+                 DisplayLabel="[ShutdownManager.ShutdownTimerDialogStateDisplayLabel]"
+                 WorkflowModel="D5513721-92D8-4E45-B988-2C4DBF055B0F"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="ShutdownManagerLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="ShutdownManagerSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+</Plugin>
