@@ -25,7 +25,9 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Runtime;
+using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
@@ -40,42 +42,43 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
   /// </summary>
   public class ShutdownDialogModel : IWorkflowModel
   {
+    private ItemsList _customTimerActions ;
     public const string SHUTDOWN_DIALOG_MODEL_ID_STR = "25F16911-ED0D-4439-9858-5E69C970C037";
 
 
     public void Shutdown()
     {
+      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Shutdown Action has been executed");
     }
 
     public void Suspend()
     {
-      ServiceRegistration.Get<IScreenControl>().Suspend();
+      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Suspend Action has been executed");
     }
 
     public void Hibernate()
     {
+      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Hibernate Action has been executed");
     }
 
     public void Restart()
     {
+      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Restart Action has been executed");
     }
 
-
-
-    public void Close()
+    public void CloseMP()
     {
-      ServiceRegistration.Get<IScreenControl>().Shutdown();
+      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Close MediaPortal Action has been executed");
     }
 
-    public void Minimize()
+    public void MinimizeMP()
     {
-      ServiceRegistration.Get<IScreenControl>().Minimize();
+      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Minimize MediaPortal Action has been executed");
     }
 
-
-    public void OpenShutdownTimerDialog()
+    public void RestartMP()
     {
-      ServiceRegistration.Get<IScreenControl>().Minimize();
+      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Restart MediaPortal Action has been executed");
     }
 
 
@@ -220,6 +223,10 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
     //  }
     //}
 
+    private void UpdateActions()
+    {
+    }
+
     //private static void AddListItem(ItemsList list, CitySetupInfo city)
     //{
     //  if (city == null)
@@ -266,8 +273,10 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       //_locationsExposed = new ItemsList();
       //_locationsSearch = new List<CitySetupInfo>();
       //_locationsSearchExposed = new ItemsList();
+      _customTimerActions = new ItemsList();
       //// Load settings
       //GetLocationsFromSettings();
+      UpdateActions();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)

@@ -15,10 +15,13 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <StackPanel>
-        <Button Content="Suspend" />
-        <Button Content="Hibernate" />
-        <Button Content="Shutdown" />
+      <StackPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Button Content="Suspend"
+                Command="{Command Suspend}" />
+        <Button Content="Hibernate"
+                Command="{Command Hibernate}" />
+        <Button Content="Shutdown"
+                Command="{Command Shutdown}" />
         <Button Content="Define custom shutdown timer">
           <Button.Command>
             <CommandList>
@@ -30,9 +33,14 @@
             </CommandList>
           </Button.Command>
         </Button>
-        <Button Content="Restart" />
-        <Button Content="Minimize MediaPortal" />
-        <Button Content="Close MediaPortal" />
+        <Button Content="Restart"
+                Command="{Command Restart}" />
+        <Button Content="Minimize MediaPortal"
+                Command="{Command MinimizeMP}" />
+        <Button Content="Restart MediaPortal"
+                Command="{Command RestartMP}" />
+        <Button Content="Close MediaPortal"
+                Command="{Command CloseMP}" />
       </StackPanel>
       <!--<StackPanel Width="650" DataContext="{Binding Source={StaticResource Model}}">
 
