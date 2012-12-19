@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Shutdown.Title]"/>
+
+    <!-- WeatherSetup model -->
+    <Model x:Key="EditShutdownMenuModel"
+           Id="869C15FC-AF55-4003-BF0D-F5AF7B6D0B3B" />
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <StackPanel DataContext="{Binding Source={StaticResource EditShutdownMenuModel}}">
+        
+        <ListView Grid.Column="0"
+                  Grid.Row="0"
+                  Style="{ThemeResource EditShutdownMenuListViewStyle}"
+                  ItemsSource="{Binding ShutdownItems}">
+          <ListView.Resources>
+            <Command x:Key="MoveUp_Command"
+                     Source="{StaticResource EditShutdownMenuModel}"
+                     Path="MoveUp"
+                     Parameters="{LateBoundValue BindingValue={Binding}}" />
+            <Command x:Key="MoveDown_Command"
+                     Source="{StaticResource EditShutdownMenuModel}"
+                     Path="MoveDown"
+                     Parameters="{LateBoundValue BindingValue={Binding}}" />
+          </ListView.Resources>
+        </ListView>
+
+        <!-- OK & Abort button -->
+        <Grid HorizontalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+
+          <Button Name="ButtonOk"
+                  Grid.Column="0"
+                  Grid.Row="0"
+                  Style="{ThemeResource DialogButtonStyle}"
+                  Content="[System.Ok]"
+                  HorizontalAlignment="Center">
+            <Button.Command>
+              <CommandList>
+                <Command Path="SaveSettings" />
+                <Command Source="{Service ScreenManager}"
+                         Path="CloseTopmostDialog" />
+              </CommandList>
+            </Button.Command>
+          </Button>
+
+          <Button Name="ButtonCancel"
+                  Grid.Column="1"
+                  Grid.Row="0"
+                  Style="{ThemeResource DialogButtonStyle}"
+                  Content="[System.Cancel]"
+                  HorizontalAlignment="Center"
+                  Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}" />
+        </Grid>
+      </StackPanel>
+
+
+          <!--<Grid DataContext="{Binding Source={StaticResource EditPlaylistModel}}">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <DockPanel Grid.Row="0"
+                     Grid.Column="0"
+                     VerticalAlignment="Bottom"
+                     LastChildFill="false">
+            <StackPanel Margin="10,0,10,0"
+                        Orientation="Horizontal"
+                        DockPanel.Dock="Right">
+              <Label Color="{ThemeResource HintTextColor}"
+                     Content="("
+                     FontSize="{ThemeResource SmallerFontSize}" />
+              <Label Color="{ThemeResource HintTextColor}"
+                     Content="{Binding NumPlaylistItemsStr}"
+                     FontSize="{ThemeResource SmallerFontSize}" />
+              <Label Color="{ThemeResource HintTextColor}"
+                     Content=")"
+                     FontSize="{ThemeResource SmallerFontSize}" />
+            </StackPanel>
+          </DockPanel>
+          <Grid Grid.Column="0"
+                Grid.Row="1"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ListView Grid.Column="0"
+                      Grid.Row="0"
+                      Style="{ThemeResource EditPlaylistListViewStyle}"
+                      ItemsSource="{Binding Items}">
+              <ListView.Resources>
+                <Command x:Key="MoveUp_Command"
+                         Source="{StaticResource EditPlaylistModel}"
+                         Path="MoveUp"
+                         Parameters="{LateBoundValue BindingValue={Binding}}" />
+                <Command x:Key="MoveDown_Command"
+                         Source="{StaticResource EditPlaylistModel}"
+                         Path="MoveDown"
+                         Parameters="{LateBoundValue BindingValue={Binding}}" />
+                <Command x:Key="Remove_Command"
+                         Source="{StaticResource EditPlaylistModel}"
+                         Path="Remove"
+                         Parameters="{LateBoundValue BindingValue={Binding}}" />
+              </ListView.Resources>
+            </ListView>
+            <Label Grid.Column="0"
+                   Grid.Row="0"
+                   IsVisible="{Binding IsPlaylistEmpty}"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Content="[Media.PlaylistEmpty]"
+                   Color="{ThemeResource HintTextColor}" />
+          </Grid>
+        </Grid>-->
+
+        <!--<StackPanel Width="650" DataContext="{Binding Source={StaticResource Model}}">
+
+        <Label Margin="10,0,0,0" Content="[WeatherSetup.ConfiguredCities]" Color="{ThemeResource TextColor}"/>
+        <StackPanel Margin="10" HorizontalAlignment="Center">
+          <ListView Name="CitiesList" Height="300" Width="600" Style="{ThemeResource WeatherDisplayLocationsListViewStyle}"
+              ItemsSource="{Binding SetupLocations}"/>
+          <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+            <Button  Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Add]"
+                Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherSearch}"/>
+            <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Remove]"
+                Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherRemoveCity}"/>
+          </StackPanel>
+        </StackPanel>
+        <Grid HorizontalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Grid.Column="0" Grid.Row="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Done]"
+              HorizontalAlignment="Center">
+            <Button.Command>
+              <CommandList>
+                <Command Path="SaveSettings"/>
+                <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+              </CommandList>
+            </Button.Command>
+          </Button>
+          <Button Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Cancel]"
+              HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
+        </Grid>
+      </StackPanel>-->
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

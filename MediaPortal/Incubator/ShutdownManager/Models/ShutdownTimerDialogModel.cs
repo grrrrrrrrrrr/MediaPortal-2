@@ -25,6 +25,8 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
@@ -41,9 +43,100 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
   /// </summary>
   public class ShutdownTimerDialogModel : IWorkflowModel
   {
-    private ItemsList _customTimerActions ;
     public const string SHUTDOWN_TIMER_DIALOG_MODEL_ID_STR = "D5513721-92D8-4E45-B988-2C4DBF055B0F";
 
+    #region Private fields
+
+    private List<string> _currentShutdownActions;
+
+    private ItemsList _customTimerActions;
+    private AbstractProperty _customTimeoutProperty;
+    private AbstractProperty _currentShutdownIndexProperty;
+
+    #endregion
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="shutdownAction">shutdown action to execute</param>
+    /// <param name="timeOut">timeout in minutes</param>
+    public void ExecuteAfterTimeout(string shutdownAction, int timeOut)
+    {
+      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: ExecuteAfterTimeout shutdownAction={0} timeOut={1}", shutdownAction, timeOut);
+    }
+
+    #region Public methods (can be used by the GUI)
+
+    public void ToggleShutdownAction()
+    {
+      int oldIndex = CurrentShutdownIndex;
+
+      if (CurrentShutdownIndex < _currentShutdownActions.Count - 1)
+        CurrentShutdownIndex++;
+      else
+        CurrentShutdownIndex = 0;
+
+      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: ToggleShutdownAction oldIndex={0}={1} newIndex={2}={3}",
+        oldIndex, (ShutdownAction)oldIndex,
+        CurrentShutdownIndex, (ShutdownAction)CurrentShutdownIndex);
+    }
+
+    public void ExecuteAfterCustomTimeout()
+    {
+      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: ExecuteAfterCustomTimeout");
+      ExecuteAfterTimeout("NULL", CustomTimeout);
+    }
+
+    public void ExecuteAfterMediaItem()
+    {
+      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: ExecuteAfterMediaItem");
+      ExecuteAfterTimeout("NULL", -1);
+    }
+
+    public void ExecuteAfterPlaylist()
+    {
+      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: ExecuteAfterPlaylist");
+      ExecuteAfterTimeout("NULL", -1);
+    }
+
+    #endregion
+
+    #region Public properties (can be used by the GUI)
+
+    public AbstractProperty CustomTimeoutProperty
+    {
+      get { return _customTimeoutProperty; }
+    }
+
+    public int CustomTimeout
+    {
+      get { return (int)_customTimeoutProperty.GetValue(); }
+      set { _customTimeoutProperty.SetValue(value); }
+    }
+
+    public AbstractProperty CurrentShutdownIndexProperty
+    {
+      get { return _currentShutdownIndexProperty; }
+    }
+
+    public int CurrentShutdownIndex
+    {
+      get { return (int)_currentShutdownIndexProperty.GetValue(); }
+      set { _currentShutdownIndexProperty.SetValue(value); }
+    }
+
+    public ShutdownAction CurrentShutdownAction
+    {
+      get { return (ShutdownAction)CurrentShutdownIndex; }
+    }
+
+    public string CurrentShutdownActionText
+    {
+      get { return _currentShutdownActions[CurrentShutdownIndex]; }
+    }
+
+    #endregion
 
     //// Locations that are already in the list
     //private List<CitySetupInfo> _locations = null;
@@ -279,7 +372,12 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
+      _currentShutdownActions = new List<string>(Enum.GetNames(typeof(ShutdownAction)));
+
+
       //_searchCityProperty = new WProperty(typeof(string), string.Empty);
+      _customTimeoutProperty = new WProperty(typeof(int), 120);
+      _currentShutdownIndexProperty = new WProperty(typeof(int), 0);
       //_locations = new List<CitySetupInfo>();
       //_locationsExposed = new ItemsList();
       //_locationsSearch = new List<CitySetupInfo>();
@@ -287,7 +385,7 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       _customTimerActions = new ItemsList();
       //// Load settings
       //GetLocationsFromSettings();
-      UpdateActions();
+      //UpdateActions();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
@@ -296,7 +394,11 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       //_locationsExposed = null;
       //_locationsSearchExposed.Clear();
       //_locationsSearchExposed = null;
+      _customTimerActions.Clear();
+      _customTimerActions = null;
       //_searchCityProperty = null;
+      _customTimeoutProperty = null;
+      _currentShutdownIndexProperty = null;
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)

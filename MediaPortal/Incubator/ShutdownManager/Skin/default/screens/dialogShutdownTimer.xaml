@@ -11,14 +11,14 @@
     <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[ShutdownTimer.Title]"/>
 
     <!-- WeatherSetup model -->
-    <Model x:Key="ShutdownTimer" Id="D5513721-92D8-4E45-B988-2C4DBF055B0F"/>
+    <Model x:Key="Model" Id="D5513721-92D8-4E45-B988-2C4DBF055B0F"/>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <Grid x:Name="MainGrid"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
-            DataContext="{Binding Source={StaticResource ShutdownTimer}}">
+            DataContext="{Binding Source={StaticResource Model}}">
 
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
@@ -48,7 +48,7 @@
                  HorizontalAlignment="Stretch"
                  VerticalAlignment="Center"
                  BorderThickness="1"
-                 Text="120" />
+                 Text="{Binding Path=CustomTimeout,Mode=TwoWay}" />
         <Label Grid.Column="2"
                Grid.Row="0"
                HorizontalAlignment="Left"
@@ -67,24 +67,34 @@
                 Grid.ColumnSpan="2"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Content="Binding CurrentAction" />
+                Content="{Binding CurrentShutdownActionText}"
+                Command="{Command ToggleShutdownAction}" />
 
-        <ListView  Grid.Column="0"
-                   Grid.Row="2"
-                   Grid.ColumnSpan="3"
-                   HorizontalAlignment="Stretch"
-                   VerticalAlignment="Stretch"
-                   ItemsSource="{Binding Path=CustomTimerActions}">
-          <!--Style="{ThemeResource ChannelWithLogoAndProgramContainerStyle}"
+        <StackPanel Grid.Column="0"
+                    Grid.Row="2"
+                    Grid.ColumnSpan="3">
+          <Button Content="AfterTimeout"
+                  Command="{Command ExecuteAfterCustomTimeout}" />
+          <Button Content="AfterMediaItem"
+                  Command="{Command ExecuteAfterMediaItem}" />
+          <Button Content="AfterPlaylist"
+                  Command="{Command ExecuteAfterPlaylist}" />
+
+          <ListView  HorizontalAlignment="Stretch"
+                     VerticalAlignment="Stretch"
+                     ItemsSource="{Binding Path=CustomTimerActions}">
+            <!--Style="{ThemeResource ChannelWithLogoAndProgramContainerStyle}"
                    ItemsSource="{Binding Path=CurrentGroupChannels}">-->
-          <ListView.Resources>
-            <CommandList x:Key="Menu_Command">
-              <!--<CommandBridge Command="{Binding Path=Command,Mode=OneTime}" />-->
-              <Command Source="{Service ScreenManager}"
-                       Path="CloseTopmostDialog" />
-            </CommandList>
-          </ListView.Resources>
-        </ListView>
+            <ListView.Resources>
+              <CommandList x:Key="Menu_Command">
+                <!--<CommandBridge Command="{Binding Path=Command,Mode=OneTime}" />-->
+                <Command Source="{Service ScreenManager}"
+                         Path="CloseTopmostDialog" />
+              </CommandList>
+            </ListView.Resources>
+          </ListView>
+        </StackPanel>
+
 
         <!--<StackPanel x:Name="Groups"
                     Margin="20,0,20,0"

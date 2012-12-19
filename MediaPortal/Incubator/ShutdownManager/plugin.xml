@@ -8,7 +8,10 @@
     PluginVersion="1.0">
 
   <DependsOn>
-    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/>    <!-- SkinEngine -->
+    <!-- SkinEngine -->
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}"/>
+    <!-- ConfigurationManager -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/>
   </DependsOn>
 
   <Runtime>
@@ -22,20 +25,30 @@
     <Model Id="D5513721-92D8-4E45-B988-2C4DBF055B0F"
            Name="ShutdownTimerDialogModel"
            ClassName="MediaPortal.Plugins.ShutdownManager.Models.ShutdownTimerDialogModel"/>
+    <Model Id="869C15FC-AF55-4003-BF0D-F5AF7B6D0B3B"
+           Name="ShutdownTimerDialogModel"
+           ClassName="MediaPortal.Plugins.ShutdownManager.Models.ShutdownConfigurationDialogModel"/>
   </Register>
 
   <Register Location="/Workflow/States">
+    <!-- Shutdown Dialog -->
     <DialogState Id="BBFA7DB7-5055-48D5-A904-0F0C79849369"
                  Name="ShutdownManager"
                  DialogScreen="dialogShutdown"
                  DisplayLabel="[ShutdownManager.ShutdownDialogStateDisplayLabel]"
                  WorkflowModel="25F16911-ED0D-4439-9858-5E69C970C037"/>
-    <!-- ShutdownManager Menu Model -->
+    <!-- ShutdownTimer Dialog -->
     <DialogState Id="90FB6BC8-6038-4261-A00F-53774ED11B1A"
                  Name="dialogShutdownTimer"
                  DialogScreen="dialogShutdownTimer"
                  DisplayLabel="[ShutdownManager.ShutdownTimerDialogStateDisplayLabel]"
                  WorkflowModel="D5513721-92D8-4E45-B988-2C4DBF055B0F"/>
+    <!-- ShutdownConfiguration Dialog -->
+    <DialogState Id="F499DC76-2BCE-4126-AF4E-7FEB9DB88E80"
+                 Name="dialogShutdownConfiguration"
+                 DialogScreen="dialogShutdownConfiguration"
+                 DisplayLabel="[ShutdownManager.ShutdownTimerDialogStateDisplayLabel]"
+                 WorkflowModel="869C15FC-AF55-4003-BF0D-F5AF7B6D0B3B"/>
   </Register>
 
   <Register Location="/Resources/Language">
@@ -45,4 +58,35 @@
   <Register Location="/Resources/Skin">
     <Resource Id="ShutdownManagerSkin" Directory="Skin" Type="Skin"/>
   </Register>
+
+
+  <!-- Contents of '/General/System' group -->
+  <!--<Register Location="/Configuration/Settings/General/System">
+    <ConfigSetting
+        Id="Autostart"
+        Text="[Settings.General.System.Autostart]"
+        HelpText="[Settings.General.System.Autostart.Help]"
+        ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.General.Autostart"/>
+  </Register>-->
+
+  <!-- Contents of '/Shares/ConfigureShares' group -->
+  <!--<Register Location="/Configuration/Settings/Shares/ConfigureShares">
+    <CustomConfigSetting
+        Id="SharesConfiguration"
+        Text="[Settings.Shares.ConfigureShares.SharesConfiguration]"
+        HelpText="[Settings.Shares.ConfigureShares.SharesConfiguration.Help]"
+        ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.Shares.SharesConfigSetting"
+        AdditionalData="WorkflowState=36B3F24A-29B4-4cb4-BC7D-434C51491CD2,ConfAppPanel=..."/>
+  </Register>-->
+  
+  <!-- Register ShutdownConfiguration at '/General/System' group -->
+  <Register Location="/Configuration/Settings/General/System">
+    <CustomConfigSetting
+        Id="ShutdownDialog"
+        Text="[Settings.General.System.ShutdownDialog]"
+        HelpText="[Settings.General.System.ShutdownDialog.Help]"
+        ClassName="MediaPortal.Plugins.ShutdownManager.Settings.Configuration.General.ShutdownDialogSetting"
+        AdditionalData="WorkflowState=F499DC76-2BCE-4126-AF4E-7FEB9DB88E80,ConfAppPanel=..."/>
+  </Register>
+  
 </Plugin>

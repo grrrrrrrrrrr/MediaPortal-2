@@ -25,14 +25,10 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
-using MediaPortal.Common.General;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.ShutdownManager.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
-using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 
 //using MediaPortal.UiComponents.Weather.Settings;
@@ -43,15 +39,18 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
   /// <summary>
   /// Workflow model for the weather setup.
   /// </summary>
-  public class ShutdownDialogModel : IWorkflowModel
+  public class ShutdownConfigurationDialogModel : IWorkflowModel
   {
-    public const string SHUTDOWN_DIALOG_MODEL_ID_STR = "25F16911-ED0D-4439-9858-5E69C970C037";
+    public const string SHUTDOWN_CONFIGURATION_DIALOG_MODEL_ID_STR = "869C15FC-AF55-4003-BF0D-F5AF7B6D0B3B";
 
     #region Private fields
 
-    protected readonly AbstractProperty _isTimerActiveProperty = new WProperty(typeof(bool), false);
     private List<ShutdownItem> _shutdownItemList = null;
     private ItemsList _shutdownItems = null;
+
+    protected int _topIndex = 0;
+    protected int _focusedDownButton = -1;
+    protected int _focusedUpButton = -1;
 
     #endregion
 
@@ -72,7 +71,7 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
     #region Private members
 
     /// <summary>
-    /// Loads all locations from the settings.
+    /// Loads shutdown actions from the settings.
     /// </summary>
     private void GetShutdownActionsFromSettings()
     {
@@ -80,19 +79,44 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       ShutdownItemList = settings.ShutdownItemList;
     }
 
-    private bool TryGetAction(ListItem item, out ShutdownAction action)
+    private bool MoveItemUp(int index, ListItem item)
     {
-      action = ShutdownAction.Suspend;
+      if (index <= 0 || index >= _shutdownItems.Count)
+        return false;
+      Utilities.CollectionUtils.Swap(ShutdownItemList, index, index - 1);
+
+      _focusedDownButton = -1;
+      _focusedUpButton = index - 1;
+
+      UpdateShutdownItems();
+      return true;
+    }
+
+    private bool MoveItemDown(int index, ListItem item)
+    {
+      if (index < 0 || index >= _shutdownItems.Count - 1)
+        return false;
+      Utilities.CollectionUtils.Swap(ShutdownItemList, index, index + 1);
+
+      _focusedDownButton = index + 1;
+      _focusedUpButton = -1;
+
+      UpdateShutdownItems();
+      return true;
+    }
+
+    private bool TryGetIndex(ListItem item, out int index)
+    {
+      index = -1;
       if (item == null)
         return false;
-
       object oIndex;
       if (item.AdditionalProperties.TryGetValue(Consts.KEY_INDEX, out oIndex))
       {
         int? i = oIndex as int?;
         if (i.HasValue)
         {
-          action = _shutdownItemList[i.Value].Action;
+          index = i.Value;
           return true;
         }
       }
@@ -108,16 +132,17 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
         {
           ShutdownItem si = _shutdownItemList[i];
 
-          // hide disabled items
-          if (!si.Enabled)
-            continue;
-
           ListItem item = new ListItem();
-          item.SetLabel(Consts.KEY_NAME, Consts.GetResourceIdentifierForMenuItem(si.Action), IsTimerActive);
+          item.SetLabel(Consts.KEY_NAME, Consts.GetResourceIdentifierForMenuItem(si.Action));
 
+          item.AdditionalProperties[Consts.KEY_IS_CHECKED] = si.Enabled;
+          item.AdditionalProperties[Consts.KEY_IS_DOWN_BUTTON_FOCUSED] = i == _focusedDownButton;
+          item.AdditionalProperties[Consts.KEY_IS_UP_BUTTON_FOCUSED] = i == _focusedUpButton;
           item.AdditionalProperties[Consts.KEY_INDEX] = i;
           _shutdownItems.Add(item);
         }
+        _focusedDownButton = -1;
+        _focusedUpButton = -1;
       }
       _shutdownItems.FireChange();
     }
@@ -131,133 +156,44 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       get { return _shutdownItems; }
     }
 
-    /// <summary>
-    /// Exposes the IsTimerActive property.
-    /// </summary>
-    public AbstractProperty IsTimerActiveProperty
-    {
-      get { return _isTimerActiveProperty; }
-    }
-
-    /// <summary>
-    /// Indicates if a shutdown timer is active.
-    /// </summary>
-    public bool IsTimerActive
-    {
-      get { return (bool)_isTimerActiveProperty.GetValue(); }
-      set { _isTimerActiveProperty.SetValue(value); }
-    }
-
     #endregion
 
     #region Public methods (can be used by the GUI)
 
     /// <summary>
-    /// Provides a callable method for the skin to execute the given shutdown <paramref name="item"/>.
+    /// Saves the current state to the settings file.
+    /// </summary>
+    public void SaveSettings()
+    {
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      ShutdownSettings settings = settingsManager.Load<ShutdownSettings>();
+      // Apply new shutdown item list
+      settings.ShutdownItemList = ShutdownItemList;
+
+      settingsManager.Save(settings);
+    }
+
+    /// <summary>
+    /// Provides a callable method for the skin to move the given playlist <paramref name="item"/> up in the playlist.
     /// </summary>
     /// <param name="item">The choosen item.</param>
-    public void Select(ListItem item)
+    public void MoveUp(ListItem item)
     {
-      if (item == null)
-        return;
-
-      ShutdownAction action;
-      if (!TryGetAction(item, out action))
-        return;
-      
-      ServiceRegistration.Get<IWorkflowManager>().NavigatePop(1);
-
-      switch (action)
-      {
-        case ShutdownAction.Suspend:
-          Suspend();
-          return;
-        case ShutdownAction.Shutdown:
-          Shutdown();
-          return;
-        case ShutdownAction.Hibernate:
-          Hibernate();
-          return;
-        case ShutdownAction.Restart:
-          Restart();
-          return;
-        case ShutdownAction.Logoff:
-          Logoff();
-          return;
-
-        case ShutdownAction.CloseMP:
-          CloseMP();
-          return;
-        case ShutdownAction.MinimizeMP:
-          MinimizeMP();
-          return;
-        case ShutdownAction.RestartMP:
-          RestartMP();
-          return;
-
-        case ShutdownAction.ShutdownTimer:
-          if (IsTimerActive)
-            CancelTimer();
-          else
-            ServiceRegistration.Get<IWorkflowManager>().NavigatePush(Consts.WF_STATE_ID_SHUTDOWN_TIMER);
-          return;
-      }
+      int index;
+      if (TryGetIndex(item, out index))
+        MoveItemUp(index, item);
     }
 
-    public void Shutdown()
+    /// <summary>
+    /// Provides a callable method for the skin to move the given playlist <paramref name="item"/> down in the playlist.
+    /// </summary>
+    /// <param name="item">The choosen item.</param>
+    public void MoveDown(ListItem item)
     {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Shutdown Action has been executed");
-    }
+      int index;
 
-    public void Suspend()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Suspend Action has been executed");
-
-      // todo: chefkoch, 2012-12-15: already implemented
-      ServiceRegistration.Get<IScreenControl>().Suspend();
-    }
-
-    public void Hibernate()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Hibernate Action has been executed");
-    }
-
-    public void Restart()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Restart Action has been executed");
-    }
-
-    public void Logoff()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Logoff Action has been executed");
-    }
-
-
-    public void CloseMP()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Close MediaPortal Action has been executed");
-
-      // todo: chefkoch, 2012-12-15: already implemented
-      //ServiceRegistration.Get<IScreenControl>().Shutdown();
-    }
-
-    public void MinimizeMP()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Minimize MediaPortal Action has been executed");
-
-      // todo: chefkoch, 2012-12-15: already implemented
-      //ServiceRegistration.Get<IScreenControl>().Minimize();
-    }
-
-    public void RestartMP()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Restart MediaPortal Action has been executed");
-    }
-
-
-    public void CancelTimer()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Cancel ShutdownTimer Action has been executed");
+      if (TryGetIndex(item, out index))
+        MoveItemDown(index, item);
     }
 
     #endregion
@@ -266,7 +202,7 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
 
     public Guid ModelId
     {
-      get { return new Guid(SHUTDOWN_DIALOG_MODEL_ID_STR); }
+      get { return new Guid(SHUTDOWN_CONFIGURATION_DIALOG_MODEL_ID_STR); }
     }
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
@@ -278,7 +214,7 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
     {
       _shutdownItemList = new List<ShutdownItem>();
       _shutdownItems = new ItemsList();
-      //// Load settings
+      // Load settings
       GetShutdownActionsFromSettings();
       UpdateShutdownItems();
     }
@@ -289,6 +225,8 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       //_locationsExposed = null;
       //_locationsSearchExposed.Clear();
       //_locationsSearchExposed = null;
+      _shutdownItems.Clear();
+      _shutdownItems = null;
       //_searchCityProperty = null;
     }
 

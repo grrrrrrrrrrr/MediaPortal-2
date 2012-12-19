@@ -58,12 +58,18 @@
     <None Include="Helper Classes\CurrentCondition.cs" />
     <None Include="Helper Classes\DayForeCast.cs" />
     <None Include="Helper Classes\IWeatherCatcher.cs" />
-    <None Include="Helper Classes\IShutdownAction.cs" />
+    <Compile Include="General\Consts.cs" />
+    <Compile Include="Helper Classes\ShutdownItem.cs" />
     <None Include="Helper Classes\LocInfo.cs" />
     <None Include="Helper Classes\WeatherMessaging.cs" />
+    <None Include="Helper Classes\CitySetupInfo.cs" />
+    <Compile Include="Helper Classes\ShutdownAction.cs" />
+    <Compile Include="Models\ShutdownConfigurationDialogModel.cs" />
     <Compile Include="Models\ShutdownTimerDialogModel.cs" />
     <Compile Include="Models\ShutdownDialogModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Configuration\General\ShutdownDialogSetting.cs" />
+    <Compile Include="Settings\ShutdownSettings.cs" />
     <Compile Include="ShutdownManager.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -89,9 +95,23 @@
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.UI</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\dialogShutdownTimer.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialogShutdownConfiguration.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\themes\default\styles\ShutdownStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
