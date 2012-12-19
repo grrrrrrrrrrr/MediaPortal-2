@@ -8,7 +8,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[ShutdownTimer.Title]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[ShutdownMenu.Timer.Title]"/>
 
     <!-- WeatherSetup model -->
     <Model x:Key="Model" Id="D5513721-92D8-4E45-B988-2C4DBF055B0F"/>
