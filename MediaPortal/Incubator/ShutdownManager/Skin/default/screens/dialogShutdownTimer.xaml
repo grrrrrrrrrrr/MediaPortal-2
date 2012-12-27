@@ -1,35 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Include
-    xmlns="www.team-mediaportal.com/2008/mpf/directx"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_dialog_bare.xaml"
-    >
+<Include xmlns="www.team-mediaportal.com/2008/mpf/directx"
+         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+         Source="screens\master_dialog_bare.xaml">
 
   <Include.Resources>
 
     <!-- Header -->
     <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[ShutdownMenu.Timer.Title]"/>
 
-    <!-- WeatherSetup model -->
-    <Model x:Key="Model" Id="D5513721-92D8-4E45-B988-2C4DBF055B0F"/>
+    <!-- ShutdownTimer model -->
+    <Model x:Key="ShutdownTimerModel"
+           Id="D5513721-92D8-4E45-B988-2C4DBF055B0F"/>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <Grid x:Name="MainGrid"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
-            DataContext="{Binding Source={StaticResource Model}}">
+            DataContext="{Binding Source={StaticResource ShutdownTimerModel}}">
 
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
-          <RowDefinition Height="*" />
-          <RowDefinition Height="*" />
-          <RowDefinition Height="*" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Label Grid.Column="0"
@@ -38,10 +37,6 @@
                VerticalAlignment="Center"
                Content="Timer: "
                Color="{ThemeResource TextColor}" />
-        <!--<TextBox Margin="10,5,10,5"
-                 HorizontalAlignment="Stretch"
-                 BorderThickness="1"
-                 Text="{Binding Path=SearchCity,Mode=OneWayToSource}" />-->
         <TextBox Grid.Column="1"
                  Grid.Row="0"
                  Margin="10,5,10,5"
@@ -67,132 +62,15 @@
                 Grid.ColumnSpan="2"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Content="{Binding CurrentShutdownActionText}"
+                Content="{Binding CurrentShutdownAction}"
                 Command="{Command ToggleShutdownAction}" />
 
-        <StackPanel Grid.Column="0"
-                    Grid.Row="2"
-                    Grid.ColumnSpan="3">
-          <Button Content="AfterTimeout"
-                  Command="{Command ExecuteAfterCustomTimeout}" />
-          <Button Content="AfterMediaItem"
-                  Command="{Command ExecuteAfterMediaItem}" />
-          <Button Content="AfterPlaylist"
-                  Command="{Command ExecuteAfterPlaylist}" />
-
-          <ListView  HorizontalAlignment="Stretch"
-                     VerticalAlignment="Stretch"
-                     ItemsSource="{Binding Path=CustomTimerActions}">
-            <!--Style="{ThemeResource ChannelWithLogoAndProgramContainerStyle}"
-                   ItemsSource="{Binding Path=CurrentGroupChannels}">-->
-            <ListView.Resources>
-              <CommandList x:Key="Menu_Command">
-                <!--<CommandBridge Command="{Binding Path=Command,Mode=OneTime}" />-->
-                <Command Source="{Service ScreenManager}"
-                         Path="CloseTopmostDialog" />
-              </CommandList>
-            </ListView.Resources>
-          </ListView>
-        </StackPanel>
-
-
-        <!--<StackPanel x:Name="Groups"
-                    Margin="20,0,20,0"
-                    Grid.Column="0"
-                    Grid.Row="0"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-                    Orientation="Horizontal">
-          <Button x:Name="PrevGroupButton"
-                  Style="{StaticResource SmallButtonStyle}"
-                  Content=" &lt; "
-                  Command="{Command PrevGroup}" />
-          <Button x:Name="NextGroupButton"
-                  Style="{StaticResource SmallButtonStyle}"
-                  Content=" &gt; "
-                  Command="{Command NextGroup}" />
-          <Label x:Name="CurrentGroupNameLabel"
-                 Content="{Binding CurrentGroupName}"
-                 Color="{ThemeResource TextColor}"
-                 FontSize="{ThemeResource SmallFontSize}" />
-        </StackPanel>
-
-        <StackPanel x:Name="PiPControl"
-                    Margin="20,0,20,0"
-                    Grid.Column="1"
-                    Grid.Row="0"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-                    Orientation="Horizontal"
-                    IsVisible="{Binding PiPAvailable}">
-          <Button x:Name="EnablePiPButton"
-                  Style="{StaticResource SmallButtonStyle}"
-                  Content="PiP enabled:"
-                  Command="{Command TogglePiP}" />
-          <Label x:Name="PiPStatusLabel"
-                 Margin="10,0,0,0"
-                 Content="{Binding PiPEnabled}"
-                 Color="{ThemeResource TextColor}"
-                 FontSize="{ThemeResource SmallFontSize}" />
-
-        </StackPanel>
-
-        <ListView  Grid.Column="0"
-                   Grid.Row="1"
-                   Grid.ColumnSpan="2"
-                   HorizontalAlignment="Stretch"
-                   VerticalAlignment="Stretch"
-                   Style="{ThemeResource ChannelWithLogoAndProgramContainerStyle}"
-                   ItemsSource="{Binding Path=CurrentGroupChannels}">
-          <ListView.Resources>
-            <CommandList x:Key="Menu_Command">
-              <CommandBridge Command="{Binding Path=Command,Mode=OneTime}" />
-              <Command Source="{Service ScreenManager}"
-                       Path="CloseTopmostDialog" />
-            </CommandList>
-          </ListView.Resources>
-        </ListView>
-        <KeyBinding Key="Right"
-                    Command="{Command Path=NextGroup}" />
-        <KeyBinding Key="Left"
-                    Command="{Command Path=PrevGroup}" />-->
+        <ListView Grid.Column="0"
+                  Grid.Row="2"
+                  Grid.ColumnSpan="3"
+                  Style="{ThemeResource ShutdownTimerListViewStyle}"
+                  ItemsSource="{Binding Path=TimerActions}" />
       </Grid>
-      
-      
-      <!--<StackPanel Width="650" DataContext="{Binding Source={StaticResource Model}}">
-
-        <Label Margin="10,0,0,0" Content="[WeatherSetup.ConfiguredCities]" Color="{ThemeResource TextColor}"/>
-        <StackPanel Margin="10" HorizontalAlignment="Center">
-          <ListView Name="CitiesList" Height="300" Width="600" Style="{ThemeResource WeatherDisplayLocationsListViewStyle}"
-              ItemsSource="{Binding SetupLocations}"/>
-          <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-            <Button  Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Add]"
-                Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherSearch}"/>
-            <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Remove]"
-                Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherRemoveCity}"/>
-          </StackPanel>
-        </StackPanel>
-        <Grid HorizontalAlignment="Stretch">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-          </Grid.RowDefinitions>
-          <Button Grid.Column="0" Grid.Row="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Done]"
-              HorizontalAlignment="Center">
-            <Button.Command>
-              <CommandList>
-                <Command Path="SaveSettings"/>
-                <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
-              </CommandList>
-            </Button.Command>
-          </Button>
-          <Button Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Cancel]"
-              HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
-        </Grid>
-      </StackPanel>-->
     </ControlTemplate>
 
   </Include.Resources>

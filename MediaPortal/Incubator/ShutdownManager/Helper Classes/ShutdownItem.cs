@@ -31,9 +31,6 @@ namespace MediaPortal.Plugins.ShutdownManager
   /// </summary>
   public class ShutdownItem
   {
-    protected readonly AbstractProperty _action = new WProperty(typeof(ShutdownAction), ShutdownAction.Suspend);
-    protected readonly AbstractProperty _enabled = new WProperty(typeof(bool), true);
-
     public ShutdownItem(ShutdownAction action, bool enabled)
     {
       Action = action;
@@ -42,17 +39,8 @@ namespace MediaPortal.Plugins.ShutdownManager
 
     public ShutdownItem() { }
 
-    public ShutdownAction Action
-    {
-      get { return (ShutdownAction)_action.GetValue(); }
-      set { _action.SetValue(value); }
-    }
-
-    public bool Enabled
-    {
-      get { return (bool)_enabled.GetValue(); }
-      set { _enabled.SetValue(value); }
-    }
+    public ShutdownAction Action { get; set; }
+    public bool Enabled { get; set; }
 
     public override string ToString()
     {

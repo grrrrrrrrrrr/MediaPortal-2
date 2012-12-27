@@ -1,5 +1,5 @@
 <Plugin
-    DescriptorVersion="1.0" 
+    DescriptorVersion="1.0"
     Name="ShutdownManager"
     PluginId="{E5326D7C-698F-48C2-AA15-AD6CCBD1A96F}"
     Author="chefkoch"
@@ -20,14 +20,14 @@
 
   <Register Location="/Models">
     <Model Id="25F16911-ED0D-4439-9858-5E69C970C037"
-           Name="ShutdownDialogModel"
-           ClassName="MediaPortal.Plugins.ShutdownManager.Models.ShutdownDialogModel"/>
+           Name="ShutdownMenuModel"
+           ClassName="MediaPortal.Plugins.ShutdownManager.Models.ShutdownMenuModel"/>
     <Model Id="D5513721-92D8-4E45-B988-2C4DBF055B0F"
-           Name="ShutdownTimerDialogModel"
-           ClassName="MediaPortal.Plugins.ShutdownManager.Models.ShutdownTimerDialogModel"/>
+           Name="ShutdownTimerModel"
+           ClassName="MediaPortal.Plugins.ShutdownManager.Models.ShutdownTimerModel"/>
     <Model Id="869C15FC-AF55-4003-BF0D-F5AF7B6D0B3B"
-           Name="ShutdownTimerDialogModel"
-           ClassName="MediaPortal.Plugins.ShutdownManager.Models.ShutdownConfigurationDialogModel"/>
+           Name="ShutdownConfigurationModel"
+           ClassName="MediaPortal.Plugins.ShutdownManager.Models.ShutdownConfigurationModel"/>
   </Register>
 
   <Register Location="/Workflow/States">
@@ -47,7 +47,7 @@
     <DialogState Id="F499DC76-2BCE-4126-AF4E-7FEB9DB88E80"
                  Name="dialogShutdownConfiguration"
                  DialogScreen="dialogShutdownConfiguration"
-                 DisplayLabel="[ShutdownManager.ShutdownTimerDialogStateDisplayLabel]"
+                 DisplayLabel="[ShutdownManager.ShutdownConfigurationDialogStateDisplayLabel]"
                  WorkflowModel="869C15FC-AF55-4003-BF0D-F5AF7B6D0B3B"/>
   </Register>
 
@@ -78,7 +78,7 @@
         ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.Shares.SharesConfigSetting"
         AdditionalData="WorkflowState=36B3F24A-29B4-4cb4-BC7D-434C51491CD2,ConfAppPanel=..."/>
   </Register>-->
-  
+
   <!-- Register ShutdownConfiguration at '/General/System' group -->
   <Register Location="/Configuration/Settings/General/System">
     <CustomConfigSetting
@@ -88,5 +88,5 @@
         ClassName="MediaPortal.Plugins.ShutdownManager.Settings.Configuration.General.ShutdownDialogSetting"
         AdditionalData="WorkflowState=F499DC76-2BCE-4126-AF4E-7FEB9DB88E80,ConfAppPanel=..."/>
   </Register>
-  
+
 </Plugin>

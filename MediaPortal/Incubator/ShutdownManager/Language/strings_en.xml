@@ -19,4 +19,8 @@
   <string name="ShutdownMenu.MinimizeMP">Minimize MediaPortal</string>
   <string name="ShutdownMenu.RestartMP">Restart MediaPortal</string>
   <string name="ShutdownMenu.ShutdownMP">Close MediaPortal</string>
+
+  <string name="ShutdownTimer.AfterCustomTimer">After custom timeout in {0} min</string>
+  <string name="ShutdownTimer.AfterMediaItem">After media item in {0} min</string>
+  <string name="ShutdownTimer.AfterPlaylist">After playlist in {0} min</string>
 </resources>

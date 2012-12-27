@@ -50,12 +50,20 @@ namespace MediaPortal.Plugins.ShutdownManager
     public const string RES_MEDIAPORTAL_RESTART_MENU_ITEM = "[ShutdownMenu.RestartMP]";
     public const string RES_MEDIAPORTAL_SHUTDOWN_MENU_ITEM = "[ShutdownMenu.ShutdownMP]";
 
+    public const string RES_SHUTDOWN_AFTER_CUSTOM_TIMEOUT = "[ShutdownTimer.AfterCustomTimer]";
+    public const string RES_SHUTDOWN_AFTER_MEDIA_ITEM = "[ShutdownTimer.AfterMediaItem]";
+    public const string RES_SHUTDOWN_AFTER_PLAYLIST = "[ShutdownTimer.AfterPlaylist]";
+
     // Accessor keys for GUI communication
     public const string KEY_NAME = "Name";
     public const string KEY_INDEX = "Sort-Index";
 
-    public const string KEY_IS_CHECKED = "IsChecked";
+    // ShutdownTimerModel
+    public const string KEY_TIMEOUT = "Timeout";
+    public const string KEY_TIME = "Time";
 
+    // ShutdownConfigurationDialogModel
+    public const string KEY_IS_CHECKED = "IsChecked";
     public const string KEY_IS_DOWN_BUTTON_FOCUSED = "IsDownButtonFocused";
     public const string KEY_IS_UP_BUTTON_FOCUSED = "IsUpButtonFocused";
 

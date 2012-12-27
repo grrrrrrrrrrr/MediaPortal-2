@@ -54,19 +54,12 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <None Include="Helper Classes\City.cs" />
-    <None Include="Helper Classes\CurrentCondition.cs" />
-    <None Include="Helper Classes\DayForeCast.cs" />
-    <None Include="Helper Classes\IWeatherCatcher.cs" />
     <Compile Include="General\Consts.cs" />
     <Compile Include="Helper Classes\ShutdownItem.cs" />
-    <None Include="Helper Classes\LocInfo.cs" />
-    <None Include="Helper Classes\WeatherMessaging.cs" />
-    <None Include="Helper Classes\CitySetupInfo.cs" />
     <Compile Include="Helper Classes\ShutdownAction.cs" />
-    <Compile Include="Models\ShutdownConfigurationDialogModel.cs" />
-    <Compile Include="Models\ShutdownTimerDialogModel.cs" />
-    <Compile Include="Models\ShutdownDialogModel.cs" />
+    <Compile Include="Models\ShutdownConfigurationModel.cs" />
+    <Compile Include="Models\ShutdownTimerModel.cs" />
+    <Compile Include="Models\ShutdownMenuModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\General\ShutdownDialogSetting.cs" />
     <Compile Include="Settings\ShutdownSettings.cs" />
@@ -98,6 +91,10 @@
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\UiComponents\SkinBase\SkinBase.csproj">
+      <Project>{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}</Project>
+      <Name>SkinBase</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

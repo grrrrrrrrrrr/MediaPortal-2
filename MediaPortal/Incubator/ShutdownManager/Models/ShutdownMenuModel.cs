@@ -35,21 +35,18 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 
-//using MediaPortal.UiComponents.Weather.Settings;
-
-
 namespace MediaPortal.Plugins.ShutdownManager.Models
 {
   /// <summary>
-  /// Workflow model for the weather setup.
+  /// Workflow model for the shutdown menu.
   /// </summary>
-  public class ShutdownDialogModel : IWorkflowModel
+  public class ShutdownMenuModel : IWorkflowModel
   {
-    public const string SHUTDOWN_DIALOG_MODEL_ID_STR = "25F16911-ED0D-4439-9858-5E69C970C037";
+    public const string SHUTDOWN_MENU_MODEL_ID_STR = "25F16911-ED0D-4439-9858-5E69C970C037";
 
     #region Private fields
 
-    protected readonly AbstractProperty _isTimerActiveProperty = new WProperty(typeof(bool), false);
+    protected AbstractProperty _isTimerActiveProperty = new WProperty(typeof(bool), false);
     private List<ShutdownItem> _shutdownItemList = null;
     private ItemsList _shutdownItems = null;
 
@@ -165,6 +162,7 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       if (!TryGetAction(item, out action))
         return;
       
+      // todo: should this be done by the skin file?
       ServiceRegistration.Get<IWorkflowManager>().NavigatePop(1);
 
       switch (action)
@@ -214,7 +212,7 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Suspend Action has been executed");
 
       // todo: chefkoch, 2012-12-15: already implemented
-      ServiceRegistration.Get<IScreenControl>().Suspend();
+      //ServiceRegistration.Get<IScreenControl>().Suspend();
     }
 
     public void Hibernate()
@@ -266,7 +264,7 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
 
     public Guid ModelId
     {
-      get { return new Guid(SHUTDOWN_DIALOG_MODEL_ID_STR); }
+      get { return new Guid(SHUTDOWN_MENU_MODEL_ID_STR); }
     }
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
@@ -285,11 +283,9 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      //_locationsExposed.Clear();
-      //_locationsExposed = null;
-      //_locationsSearchExposed.Clear();
-      //_locationsSearchExposed = null;
-      //_searchCityProperty = null;
+      _shutdownItems.Clear();
+      _shutdownItems = null;
+      //_isTimerActiveProperty = null;
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)

@@ -31,21 +31,18 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 
-//using MediaPortal.UiComponents.Weather.Settings;
-
-
 namespace MediaPortal.Plugins.ShutdownManager.Models
 {
   /// <summary>
-  /// Workflow model for the weather setup.
+  /// Workflow model for the shutdown menu configuration.
   /// </summary>
-  public class ShutdownConfigurationDialogModel : IWorkflowModel
+  public class ShutdownConfigurationModel : IWorkflowModel
   {
-    public const string SHUTDOWN_CONFIGURATION_DIALOG_MODEL_ID_STR = "869C15FC-AF55-4003-BF0D-F5AF7B6D0B3B";
+    public const string SHUTDOWN_CONFIGURATION_MODEL_ID_STR = "869C15FC-AF55-4003-BF0D-F5AF7B6D0B3B";
 
     #region Private fields
 
-    private List<ShutdownItem> _shutdownItemList = null;
+    private List<ShutdownItem> _shutdownItemList;
     private ItemsList _shutdownItems = null;
 
     protected int _topIndex = 0;
@@ -54,21 +51,12 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
 
     #endregion
 
-    /// <summary>
-    /// gets or sets the Locations
-    /// </summary>
-    private List<ShutdownItem> ShutdownItemList
+    public ShutdownConfigurationModel()
     {
-      get { return _shutdownItemList; }
-      set
-      {
-        _shutdownItemList = value;
-        if (_shutdownItemList == null)
-          return;
-      }
+      _shutdownItemList = null;
     }
 
-    #region Private members
+    #region Private methods
 
     /// <summary>
     /// Loads shutdown actions from the settings.
@@ -76,14 +64,14 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
     private void GetShutdownActionsFromSettings()
     {
       ShutdownSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ShutdownSettings>();
-      ShutdownItemList = settings.ShutdownItemList;
+      _shutdownItemList = settings.ShutdownItemList;
     }
 
     private bool MoveItemUp(int index, ListItem item)
     {
       if (index <= 0 || index >= _shutdownItems.Count)
         return false;
-      Utilities.CollectionUtils.Swap(ShutdownItemList, index, index - 1);
+      Utilities.CollectionUtils.Swap(_shutdownItemList, index, index - 1);
 
       _focusedDownButton = -1;
       _focusedUpButton = index - 1;
@@ -96,7 +84,7 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
     {
       if (index < 0 || index >= _shutdownItems.Count - 1)
         return false;
-      Utilities.CollectionUtils.Swap(ShutdownItemList, index, index + 1);
+      Utilities.CollectionUtils.Swap(_shutdownItemList, index, index + 1);
 
       _focusedDownButton = index + 1;
       _focusedUpButton = -1;
@@ -168,13 +156,13 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       ShutdownSettings settings = settingsManager.Load<ShutdownSettings>();
       // Apply new shutdown item list
-      settings.ShutdownItemList = ShutdownItemList;
+      settings.ShutdownItemList = _shutdownItemList;
 
       settingsManager.Save(settings);
     }
 
     /// <summary>
-    /// Provides a callable method for the skin to move the given playlist <paramref name="item"/> up in the playlist.
+    /// Provides a callable method for the skin to move the given shutdown <paramref name="item"/> up in the itemlist.
     /// </summary>
     /// <param name="item">The choosen item.</param>
     public void MoveUp(ListItem item)
@@ -185,7 +173,7 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
     }
 
     /// <summary>
-    /// Provides a callable method for the skin to move the given playlist <paramref name="item"/> down in the playlist.
+    /// Provides a callable method for the skin to move the given shutdown <paramref name="item"/> down in the itemlist.
     /// </summary>
     /// <param name="item">The choosen item.</param>
     public void MoveDown(ListItem item)
@@ -202,7 +190,7 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
 
     public Guid ModelId
     {
-      get { return new Guid(SHUTDOWN_CONFIGURATION_DIALOG_MODEL_ID_STR); }
+      get { return new Guid(SHUTDOWN_CONFIGURATION_MODEL_ID_STR); }
     }
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
@@ -221,13 +209,8 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      //_locationsExposed.Clear();
-      //_locationsExposed = null;
-      //_locationsSearchExposed.Clear();
-      //_locationsSearchExposed = null;
       _shutdownItems.Clear();
       _shutdownItems = null;
-      //_searchCityProperty = null;
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
