@@ -60,14 +60,12 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
     private List<ShutdownItem> _shutdownItemList = null;
     private ItemsList _timerActions;
 
-    private string _dateFormat;
-    private string _timeFormat;
-    CultureInfo _culture;
-
     private int _currentShutdownIndex;
 
     private AbstractProperty _customTimeoutProperty;
     private AbstractProperty _currentShutdownActionProperty;
+
+    protected AbstractProperty _isTimerActiveProperty = new WProperty(typeof(bool), false);
 
     #endregion
 
@@ -78,25 +76,18 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
     /// </summary>
     private void GetShutdownActionsFromSettings()
     {
-      ShutdownSettings shutdownSettings = ServiceRegistration.Get<ISettingsManager>().Load<ShutdownSettings>();
-      _shutdownItemList = shutdownSettings.ShutdownItemList;
+      ShutdownSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ShutdownSettings>();
+      _shutdownItemList = settings.ShutdownItemList;
 
       // set timeout to last one
-      CustomTimeout = (int) shutdownSettings.LastCustomShutdownTime;
+      CustomTimeout = (int) settings.LastCustomShutdownTime;
 
       // set shutdown action to last used one
-      _currentShutdownIndex = _shutdownItemList.FindIndex(si => si.Action == shutdownSettings.LastCustomShutdownAction);
+      _currentShutdownIndex = _shutdownItemList.FindIndex(si => si.Action == settings.LastCustomShutdownAction);
 
       // if last used shutdownaction has been disabled in the meanwhile, choose next one
       if (!_shutdownItemList[_currentShutdownIndex].Enabled)
         ToggleShutdownAction();
-
-      ILocalization localization = ServiceRegistration.Get<ILocalization>();
-      _culture = localization.CurrentCulture;
-
-      SkinBaseSettings skinBaseSettings = ServiceRegistration.Get<ISettingsManager>().Load<SkinBaseSettings>();
-      _dateFormat = skinBaseSettings.DateFormat;
-      _timeFormat = skinBaseSettings.TimeFormat;
     }
 
     /// <summary>
@@ -114,14 +105,14 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       settingsManager.Save(settings);
     }
 
-    private void ExecuteAfterTimeout(int timeOut)
+    private void PrepareTimer(int timeout)
     {
       SaveSettings();
 
       // activate shutdown timer
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: ExecuteAfterTimeout shutdownAction={0} timeOut={1}",
+      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: PrepareTimer shutdownAction={0} timeOut={1}",
         _shutdownItemList[_currentShutdownIndex].Action,
-        timeOut);
+        timeout);
     }
 
     /// <summary>
@@ -141,44 +132,6 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
     {
       return 600;
     }
-
-    #region localization helpers
-
-    /// <summary>
-    /// todo: is it necessary to display the date if timeout is > 24hr or only at next day?
-    /// </summary>
-    /// <param name="dateTime"></param>
-    /// <returns></returns>
-    private string GetLocalizedDateOrTime(DateTime dateTime)
-    {
-      // todo: check if time (without date) is always enough , i.e. if timout ends the next day
-      if(true)
-        return GetLocalizedTime(dateTime);
-
-      return GetLocalizedDate(dateTime);
-    }
-
-    /// <summary>
-    /// todo: Is there are already a Utility to return the localized time?
-    /// </summary>
-    /// <param name="time"></param>
-    /// <returns>localized time as string</returns>
-    private string GetLocalizedTime(DateTime time)
-    {
-      return time.ToString(_timeFormat, _culture);
-    }
-
-    /// <summary>
-    /// todo: Is there are already a Utility to return the localized date?
-    /// </summary>
-    /// <param name="date"></param>
-    /// <returns>localized time as string</returns>
-    private string GetLocalizedDate(DateTime date)
-    {
-      return date.ToString(_dateFormat, _culture);
-    }
-
-    #endregion
 
     #endregion
 
@@ -219,6 +172,23 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       }
     }
 
+    /// <summary>
+    /// Exposes the IsTimerActive property.
+    /// </summary>
+    public AbstractProperty IsTimerActiveProperty
+    {
+      get { return _isTimerActiveProperty; }
+    }
+
+    /// <summary>
+    /// Indicates if a shutdown timer is active.
+    /// </summary>
+    public bool IsTimerActive
+    {
+      get { return (bool)_isTimerActiveProperty.GetValue(); }
+      set { _isTimerActiveProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Public methods (can be used by the GUI)
@@ -246,22 +216,33 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       //UpdateTimerActions();
     }
 
-    public void ExecuteAfterCustomTimeout()
+    public void PrepareCustomTimer()
     {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: ExecuteAfterCustomTimeout");
-      ExecuteAfterTimeout(CustomTimeout);
+      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: PrepareCustomTimer");
+
+      int timeout = CustomTimeout;
+      PrepareTimer(timeout);
     }
 
-    public void ExecuteAfterMediaItem()
+    public void PrepareMediaItemTimer()
     {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: ExecuteAfterMediaItem");
-      ExecuteAfterTimeout(GetRemainingTimeForMediaItem());
+      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: PrepareMediaItemTimer");
+
+      int timeout = GetRemainingTimeForMediaItem();
+      PrepareTimer(timeout);
     }
 
-    public void ExecuteAfterPlaylist()
+    public void PreparePlaylistTimer()
     {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: ExecuteAfterPlaylist");
-      ExecuteAfterTimeout(GetRemainingTimeForPlaylist());
+      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: PreparePlaylistTimer");
+
+      int timeout = GetRemainingTimeForPlaylist();
+      PrepareTimer(timeout);
+    }
+
+    public void CancelTimer()
+    {
+      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Cancel ShutdownTimer Action has been executed");
     }
 
     #endregion
@@ -270,23 +251,16 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
     {
       _timerActions.Clear();
 
-      //todo: chefkoch, rework into string file, not sur about the solution:   3 strings per shutdown action? 1 base string per shutdown action?
+      //todo: chefkoch, rework into string file, not sure about the solution:   3 strings per shutdown action? 1 base string per shutdown action?
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
-      ListItem newItem;
-      int timeout;
       DateTime now = DateTime.Now;
+      int timeout;
       string label;
 
       timeout = CustomTimeout;
       label = loc.ToString(Consts.RES_SHUTDOWN_AFTER_CUSTOM_TIMEOUT, timeout);
 
-
-      newItem = new ListItem(Consts.KEY_NAME, label);
-      newItem.AdditionalProperties[Consts.KEY_TIMEOUT] = timeout;
-      newItem.AdditionalProperties[Consts.KEY_TIME] = GetLocalizedDateOrTime(now.AddMinutes(timeout));
-      newItem.Command = new MethodDelegateCommand(ExecuteAfterCustomTimeout);
-      _timerActions.Add(newItem);
-
+      AddTimerAction(label, timeout, now.AddMinutes(timeout), PrepareCustomTimer);
 
       IPlayerContextManager iPlayerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       // todo: check for playback of a file
@@ -295,11 +269,7 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
         timeout = GetRemainingTimeForMediaItem();
         label = loc.ToString(Consts.RES_SHUTDOWN_AFTER_MEDIA_ITEM, timeout);
 
-        newItem = new ListItem(Consts.KEY_NAME, label);
-        newItem.AdditionalProperties[Consts.KEY_TIMEOUT] = timeout;
-        newItem.AdditionalProperties[Consts.KEY_TIME] = GetLocalizedDateOrTime(now.AddMinutes(timeout));
-        newItem.Command = new MethodDelegateCommand(ExecuteAfterMediaItem);
-        _timerActions.Add(newItem);
+        AddTimerAction(label, timeout, now.AddMinutes(timeout), PrepareMediaItemTimer);
       }
 
       // todo: check for playback of a playlist (if more than one media item)
@@ -308,24 +278,20 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
         timeout = GetRemainingTimeForPlaylist();
         label = loc.ToString(Consts.RES_SHUTDOWN_AFTER_PLAYLIST, timeout);
 
-        newItem = new ListItem(Consts.KEY_NAME, label);
-        newItem.AdditionalProperties[Consts.KEY_TIMEOUT] = timeout;
-        newItem.AdditionalProperties[Consts.KEY_TIME] = GetLocalizedDateOrTime(now.AddMinutes(timeout));
-        newItem.Command = new MethodDelegateCommand(ExecuteAfterPlaylist);
-        _timerActions.Add(newItem);
+        AddTimerAction(label, timeout, now.AddMinutes(timeout), PreparePlaylistTimer);
       }
 
       _timerActions.FireChange();
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="shutdownAction">shutdown action to execute</param>
-    /// <param name="timeOut">timeout in minutes</param>
-    public void ExecuteAfterTimeout(string shutdownAction, int timeOut)
+    private void AddTimerAction(string label, int timeout, DateTime timeoutTime, ParameterlessMethod command)
     {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: ExecuteAfterTimeout shutdownAction={0} timeOut={1}", shutdownAction, timeOut);
+      ListItem newItem;
+      newItem = new ListItem(Consts.KEY_NAME, label);
+      newItem.AdditionalProperties[Consts.KEY_TIMEOUT] = timeout;
+      newItem.AdditionalProperties[Consts.KEY_TIME] = timeoutTime;
+      newItem.Command = new MethodDelegateCommand(command);
+      _timerActions.Add(newItem);
     }
 
     #region IWorkflowModel implementation

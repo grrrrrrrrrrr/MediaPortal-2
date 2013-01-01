@@ -46,7 +46,6 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
 
     #region Private fields
 
-    protected AbstractProperty _isTimerActiveProperty = new WProperty(typeof(bool), false);
     private List<ShutdownItem> _shutdownItemList = null;
     private ItemsList _shutdownItems = null;
 
@@ -110,7 +109,7 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
             continue;
 
           ListItem item = new ListItem();
-          item.SetLabel(Consts.KEY_NAME, Consts.GetResourceIdentifierForMenuItem(si.Action), IsTimerActive);
+          item.SetLabel(Consts.KEY_NAME, Consts.GetResourceIdentifierForMenuItem(si.Action));
 
           item.AdditionalProperties[Consts.KEY_INDEX] = i;
           _shutdownItems.Add(item);
@@ -128,24 +127,71 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       get { return _shutdownItems; }
     }
 
-    /// <summary>
-    /// Exposes the IsTimerActive property.
-    /// </summary>
-    public AbstractProperty IsTimerActiveProperty
-    {
-      get { return _isTimerActiveProperty; }
-    }
-
-    /// <summary>
-    /// Indicates if a shutdown timer is active.
-    /// </summary>
-    public bool IsTimerActive
-    {
-      get { return (bool)_isTimerActiveProperty.GetValue(); }
-      set { _isTimerActiveProperty.SetValue(value); }
-    }
-
     #endregion
+
+    public static void DoAction(ShutdownAction action)
+    {
+      switch (action)
+      {
+        case ShutdownAction.Suspend:
+          ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Suspend Action has been executed");
+          // todo: chefkoch, 2013-01-01: already implemented in IScreenControl, should be moved to IPowerStateControl/ISystemControl maybe
+          //ServiceRegistration.Get<IScreenControl>().Suspend();
+          //ServiceRegistration.Get<IPowerStateControl>().Suspend();
+          return;
+
+        case ShutdownAction.Shutdown:
+          ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Shutdown Action has been executed");
+          // todo: chekoch, 2013-01-01: kind of a IPowerStateControl/ISystemControl needs to be implemented first
+          //ServiceRegistration.Get<IPowerStateControl>().Shutdown();
+          return;
+
+        case ShutdownAction.Hibernate:
+          ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Hibernate Action has been executed");
+          // todo: chekoch, 2013-01-01: kind of a IPowerStateControl/ISystemControl needs to be implemented first
+          //ServiceRegistration.Get<IPowerStateControl>().Hibernate();
+          return;
+
+        case ShutdownAction.Restart:
+          ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Restart Action has been executed");
+          // todo: chekoch, 2013-01-01: kind of a IPowerStateControl/ISystemControl needs to be implemented first
+          //ServiceRegistration.Get<IPowerStateControl>().Restart();
+          return;
+
+        case ShutdownAction.Logoff:
+          ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Logoff Action has been executed");
+          // todo: chekoch, 2013-01-01: kind of a IPowerStateControl/ISystemControl needs to be implemented first
+          //ServiceRegistration.Get<IPowerStateControl>().Logoff();
+          return;
+
+
+        case ShutdownAction.CloseMP:
+          ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Close MediaPortal Action has been executed");
+          // todo: chefkoch, 2012-12-15: already implemented in IScreenControl
+          //ServiceRegistration.Get<IScreenControl>().Shutdown();
+          return;
+
+        case ShutdownAction.MinimizeMP:
+          ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Minimize MediaPortal Action has been executed");
+          // todo: chefkoch, 2012-12-15: already implemented in IScreenControl
+          //ServiceRegistration.Get<IScreenControl>().Minimize();
+          return;
+
+        case ShutdownAction.RestartMP:
+          ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Restart MediaPortal Action has been executed");
+          // todo: chefkoch, 2012-12-15: already implemented in IScreenControl
+          return;
+
+
+        case ShutdownAction.ShutdownTimer:
+          // todo: chefkoch, 2013-01-01: check from ShutdownTimerModel if timer is active
+          //if (IsTimerActive)
+          //  CancelTimer();
+          //else
+          ServiceRegistration.Get<IWorkflowManager>().NavigatePush(Consts.WF_STATE_ID_SHUTDOWN_TIMER);
+          return;
+      }
+    }
 
     #region Public methods (can be used by the GUI)
 
@@ -161,101 +207,11 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       ShutdownAction action;
       if (!TryGetAction(item, out action))
         return;
-      
-      // todo: should this be done by the skin file?
+
+      // todo: chefkoch, 2012-12-15: should this be done by the skin file?
       ServiceRegistration.Get<IWorkflowManager>().NavigatePop(1);
 
-      switch (action)
-      {
-        case ShutdownAction.Suspend:
-          Suspend();
-          return;
-        case ShutdownAction.Shutdown:
-          Shutdown();
-          return;
-        case ShutdownAction.Hibernate:
-          Hibernate();
-          return;
-        case ShutdownAction.Restart:
-          Restart();
-          return;
-        case ShutdownAction.Logoff:
-          Logoff();
-          return;
-
-        case ShutdownAction.CloseMP:
-          CloseMP();
-          return;
-        case ShutdownAction.MinimizeMP:
-          MinimizeMP();
-          return;
-        case ShutdownAction.RestartMP:
-          RestartMP();
-          return;
-
-        case ShutdownAction.ShutdownTimer:
-          if (IsTimerActive)
-            CancelTimer();
-          else
-            ServiceRegistration.Get<IWorkflowManager>().NavigatePush(Consts.WF_STATE_ID_SHUTDOWN_TIMER);
-          return;
-      }
-    }
-
-    public void Shutdown()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Shutdown Action has been executed");
-    }
-
-    public void Suspend()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Suspend Action has been executed");
-
-      // todo: chefkoch, 2012-12-15: already implemented
-      //ServiceRegistration.Get<IScreenControl>().Suspend();
-    }
-
-    public void Hibernate()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Hibernate Action has been executed");
-    }
-
-    public void Restart()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Restart Action has been executed");
-    }
-
-    public void Logoff()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Logoff Action has been executed");
-    }
-
-
-    public void CloseMP()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Close MediaPortal Action has been executed");
-
-      // todo: chefkoch, 2012-12-15: already implemented
-      //ServiceRegistration.Get<IScreenControl>().Shutdown();
-    }
-
-    public void MinimizeMP()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Minimize MediaPortal Action has been executed");
-
-      // todo: chefkoch, 2012-12-15: already implemented
-      //ServiceRegistration.Get<IScreenControl>().Minimize();
-    }
-
-    public void RestartMP()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Restart MediaPortal Action has been executed");
-    }
-
-
-    public void CancelTimer()
-    {
-      ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Cancel ShutdownTimer Action has been executed");
+      DoAction(action);
     }
 
     #endregion
