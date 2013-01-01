@@ -23,6 +23,10 @@
                   Style="{ThemeResource ShutdownConfigurationListViewStyle}"
                   ItemsSource="{Binding ShutdownItems}">
           <ListView.Resources>
+            <Command x:Key="CheckedChange_Command"
+                     Source="{StaticResource ShutdownConfigurationModel}"
+                     Path="CheckedChange"
+                     Parameters="{LateBoundValue BindingValue={Binding}}" />
             <Command x:Key="MoveUp_Command"
                      Source="{StaticResource ShutdownConfigurationModel}"
                      Path="MoveUp"

@@ -24,6 +24,7 @@
                       Grid.Column="0"
                       Grid.Row="0"
                       Margin="2,1,0,1"
+                      Command="{DynamicResource ResourceKey=CheckedChange_Command}"
                       IsChecked="{Binding Path=AdditionalProperties[IsChecked],Mode=TwoWay}" />
 
             <Button x:Name="MoveUpButton"

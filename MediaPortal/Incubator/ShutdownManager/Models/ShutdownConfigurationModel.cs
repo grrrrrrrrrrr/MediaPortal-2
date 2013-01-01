@@ -67,6 +67,15 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       _shutdownItemList = settings.ShutdownItemList;
     }
 
+    private bool ItemCheckedChanged(int index, ListItem item)
+    {
+      bool isChecked = (bool) item.AdditionalProperties[Consts.KEY_IS_CHECKED];
+
+      _shutdownItemList[index].Enabled = isChecked;
+
+      return true;
+    }
+
     private bool MoveItemUp(int index, ListItem item)
     {
       if (index <= 0 || index >= _shutdownItems.Count)
@@ -159,6 +168,17 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       settings.ShutdownItemList = _shutdownItemList;
 
       settingsManager.Save(settings);
+    }
+
+    /// <summary>
+    /// Provides a callable method for the skin to change the checked state of a given shutdown <paramref name="item"/> in the itemlist.
+    /// </summary>
+    /// <param name="item">The choosen item.</param>
+    public void CheckedChange(ListItem item)
+    {
+      int index;
+      if (TryGetIndex(item, out index))
+        ItemCheckedChanged(index, item);
     }
 
     /// <summary>
