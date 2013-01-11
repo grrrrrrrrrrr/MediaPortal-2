@@ -301,6 +301,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     public virtual void Initialize()
     {
       RegisterPluginItemListeners();
+      CheckProvidersLoaded();
     }
 
     public virtual void Shutdown()
