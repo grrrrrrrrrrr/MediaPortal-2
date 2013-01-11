@@ -26,16 +26,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
+using System.Xml.Serialization;
 using MediaPortal.Common.UPnP;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using UPnP.Infrastructure.Common;
-using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.UPnP
 {
   public class UPnPDtImageCollection : UPnPExtendedDataType
   {
     public static UPnPDtImageCollection Instance = new UPnPDtImageCollection();
+    protected static XmlSerializer _xmlSerializer;
 
     public const string DATATYPE_NAME = "DtImageCollection";
 
@@ -59,20 +59,23 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.UPnP
       return typeof (IEnumerable).IsAssignableFrom(type);
     }
 
+
+    protected static XmlSerializer GetOrCreateXMLSerializer()
+    {
+      return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(List<string>)));
+    }
+
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      IEnumerable images = (IEnumerable) value;
-      foreach (FanArtImage image in images)
-        image.Serialize(writer);
+      XmlSerializer serializer = GetOrCreateXMLSerializer();
+      serializer.Serialize(writer, value);
     }
 
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      ICollection<FanArtImage> result = new List<FanArtImage>();
-      if (SoapHelper.ReadEmptyStartElement(reader)) // Read start of enclosing element
-        return result;
-      while (reader.NodeType != XmlNodeType.EndElement)
-        result.Add(FanArtImage.Deserialize(reader));
+      reader.ReadStartElement(); // Read start of enclosing element
+      XmlSerializer serializer = GetOrCreateXMLSerializer();
+      List<string> result = (List<string>)serializer.Deserialize(reader);
       reader.ReadEndElement(); // End of enclosing element
       return result;
     }    

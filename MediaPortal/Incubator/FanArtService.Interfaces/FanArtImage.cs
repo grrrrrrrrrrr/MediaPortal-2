@@ -30,6 +30,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities.Graphics;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
@@ -130,8 +131,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     /// <param name="fileName">File name to load</param>
     /// <param name="maxWidth">Maximum width for image. <c>0</c> returns image in original size.</param>
     /// <param name="maxHeight">Maximum height for image. <c>0</c> returns image in original size.</param>
-    /// <returns>FanArtImage or <c>null</c>.</returns>
-    public static FanArtImage FromFile(string fileName, int maxWidth, int maxHeight)
+    /// <returns>File path or <c>null</c>.</returns>
+    public static string FromFile(string fileName, int maxWidth, int maxHeight)
     {
       if (string.IsNullOrEmpty(fileName))
         return null;
@@ -141,19 +142,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
       if (!fileInfo.Exists)
         return null;
 
-      try
-      {
-        byte[] binary = new byte[fileInfo.Length];
-        using (FileStream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
-        using (BinaryReader binaryReader = new BinaryReader(fileStream))
-          binaryReader.Read(binary, 0, binary.Length);
-
-        return new FanArtImage(fileInfo.Name, binary);
-      }
-      catch
-      {
-        return null;
-      }
+      // Build a full resource path using the LocalFsResourceProvider
+      return ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, LocalFsResourceProviderBase.ToProviderPath(fileInfo.FullName)).Serialize();
     }
 
     /// <summary>

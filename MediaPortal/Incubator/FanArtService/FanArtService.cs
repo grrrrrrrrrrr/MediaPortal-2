@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MediaPortal.Common;
+using MediaPortal.Common.SystemResolver;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 
@@ -33,7 +35,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 {
   public class FanArtService : IFanArtService
   {
-    public IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom)
+    public IList<string> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom)
     {
       string baseFolder = GetBaseFolder(mediaType, name);
       // No known series
@@ -44,11 +46,15 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       if (string.IsNullOrEmpty(pattern))
         return null;
 
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       DirectoryInfo directoryInfo = new DirectoryInfo(baseFolder);
       try
       {
         List<string> files = directoryInfo.GetFiles(pattern).Select(file => file.FullName).ToList();
-        List<FanArtImage> fanArtImages = files.Select(f => FanArtImage.FromFile(f, maxWidth, maxHeight)).Where(fanArtImage => fanArtImage != null).ToList();
+        List<string> fanArtImages = files.
+          Select(f => FanArtImage.FromFile(f, maxWidth, maxHeight)).
+          Where(fanArtImage => fanArtImage != null).
+          Select(f => systemResolver.LocalSystemId + "|" + f).ToList(); // Build path SystemID|ResourcePath
 
         if (fanArtImages.Count == 0)
           return null;
@@ -60,14 +66,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       }
     }
 
-    protected IList<FanArtImage> GetSingleRandom(IList<FanArtImage> fullList)
+    protected IList<string> GetSingleRandom(IList<string> fullList)
     {
       if (fullList.Count <= 1)
         return fullList;
 
       Random rnd = new Random(DateTime.Now.Millisecond);
       int rndIndex = rnd.Next(fullList.Count - 1);
-      return new List<FanArtImage> { fullList[rndIndex] };
+      return new List<string> { fullList[rndIndex] };
     }
 
     protected string GetPattern(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name)

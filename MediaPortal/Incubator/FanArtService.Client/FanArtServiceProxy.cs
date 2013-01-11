@@ -39,7 +39,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
     protected UPnPNetworkTracker _networkTracker;
     protected UPnPControlPoint _controlPoint;
     protected readonly object _syncObj = new object();
-    protected static List<FanArtImage> EMPTY_LIST = new List<FanArtImage>();
+    protected static List<string> EMPTY_LIST = new List<string>();
 
     #endregion
 
@@ -48,7 +48,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       ServiceRegistration.Set<IFanArtService>(this);
     }
 
-    public IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom)
+    public IList<string> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom)
     {
       try
       {
@@ -63,7 +63,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
               singleRandom
             };
         IList<object> outParameters = action.InvokeAction(inParameters);
-        return (IList<FanArtImage>)outParameters[0];
+        return (IList<string>) outParameters[0];
       }
       catch (Exception)
       {

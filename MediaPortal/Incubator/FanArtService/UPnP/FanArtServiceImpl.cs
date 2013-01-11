@@ -90,7 +90,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.UPnP
       int maxHeight = (int) inParams[4];
       bool singleRandom = (bool) inParams[5];
 
-      IList<FanArtImage> fanArtImages = fanArtService.GetFanArt(fanArtMediaType, fanArtType, name, maxWidth, maxHeight, singleRandom) ?? new List<FanArtImage>();
+      IList<string> fanArtImages = fanArtService.GetFanArt(fanArtMediaType, fanArtType, name, maxWidth, maxHeight, singleRandom) ?? new List<string>();
       outParams = new List<object> { fanArtImages };
       return null;
     }

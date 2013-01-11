@@ -26,6 +26,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.UI.SkinEngine.ContentManagement;
@@ -46,7 +48,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
     protected AbstractProperty _maxWidthProperty;
     protected AbstractProperty _maxHeightProperty;
 
-    protected IList<FanArtImage> _possibleSources;
+    protected IList<string> _possibleSources;
     protected bool _asyncStarted = false;
 
     protected readonly object _syncObj = new object();
@@ -151,8 +153,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     protected void Init()
     {
-      _fanArtMediaTypeProperty = new SProperty(typeof(FanArtConstants.FanArtMediaType),
-        FanArtConstants.FanArtMediaType.Undefined);
+      _fanArtMediaTypeProperty = new SProperty(typeof(FanArtConstants.FanArtMediaType), FanArtConstants.FanArtMediaType.Undefined);
       _fanArtTypeProperty = new SProperty(typeof(FanArtConstants.FanArtType), FanArtConstants.FanArtType.Undefined);
       _fanArtNameProperty = new SProperty(typeof(string), string.Empty);
       _maxWidthProperty = new SProperty(typeof(int), 0);
@@ -207,25 +208,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
       Download_Async();
 
-      IList<FanArtImage> possibleSources;
-      lock (_syncObj)
-        possibleSources = _possibleSources;
-
-      if (possibleSources == null || possibleSources.Count == 0)
-        return;
-
-      if (_texture == null)
-      {
-        FanArtImage image = possibleSources[0];
-        _texture = ContentManager.Instance.GetTexture(image.BinaryData, image.Name);
-      }
-
-      if (_texture == null || _texture.IsAllocated)
-        return;
-
-      _texture.Allocate();
-
-      if (!_texture.IsAllocated)
+      if (_texture == null || !_texture.IsAllocated)
         return;
 
       _imageContext.Refresh();
@@ -256,12 +239,27 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
         IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
         threadPool.Add(() =>
                          {
-                           IList<FanArtImage> possibleSources = fanArtService.GetFanArt(mediaType, type, name, MaxWidth, MaxHeight, true);
+                           IList<string> possibleSources = fanArtService.GetFanArt(mediaType, type, name, MaxWidth, MaxHeight, true);
                            lock (_syncObj)
                            {
                              // Selection can be changed meanwhile, so set source only if same as on starting
-                             if (FanArtMediaType == mediaType && FanArtType == type && FanArtName == name)
-                               _possibleSources = possibleSources;
+                             if (FanArtMediaType == mediaType && FanArtType == type && FanArtName == name && possibleSources.Count > 0)
+                             {
+                               string imageResourcePath = possibleSources[0];
+                               string[] parts = imageResourcePath.Split('|');
+                               ILocalFsResourceAccessor lfsra;
+                               ResourceLocator loc = new ResourceLocator(parts[0], ResourcePath.Deserialize(parts[1]));
+                               if (loc.TryCreateLocalFsAccessor(out lfsra))
+                               {
+                                 using (lfsra)
+                                 {
+                                   _texture = ContentManager.Instance.GetTexture(lfsra.LocalFileSystemPath);
+                                   if (_texture == null || _texture.IsAllocated)
+                                     return;
+                                   _texture.Allocate();
+                                 }
+                               }
+                             }
                            }
                          });
         _asyncStarted = true;

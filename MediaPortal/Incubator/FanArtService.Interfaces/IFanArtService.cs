@@ -36,7 +36,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
   /// <param name="maxHeight">Maximum height for image. <c>0</c> returns image in original size.</param>
   /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
   /// <returns>List of fanart image URIs</returns>
-  public delegate IList<FanArtImage> GetFanArtDelegate(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom);
+  public delegate IList<string> GetFanArtDelegate(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom);
 
   /// <summary>
   /// <see cref="IFanArtService"/> provides fanart images for different media types and allows scraping of information from internet sources
@@ -55,6 +55,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     /// <param name="maxHeight">Maximum height for image. <c>0</c> returns image in original size.</param>
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
     /// <returns>List of fanart image URIs</returns>
-    IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom);
+    IList<string> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom);
   }
 }
