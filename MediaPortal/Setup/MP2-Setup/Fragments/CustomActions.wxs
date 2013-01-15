@@ -9,5 +9,6 @@
     <CustomAction Id="ReadCustomPathsFromExistingPathsFile" BinaryKey="Custom_Action_Dll" DllEntry="ReadCustomPathsFromExistingPathsFile" Execute="immediate" Return="check" />
     <CustomAction Id="PrepareXmlPathVariables" BinaryKey="Custom_Action_Dll" DllEntry="PrepareXmlPathVariables" Execute="immediate" Return="check" />
     <CustomAction Id="AttachClientToServer" BinaryKey="Custom_Action_Dll" DllEntry="AttachClientToServer" Execute="immediate" Return="check" />
+    <CustomAction Id="GenerateSafePassword" BinaryKey="Custom_Action_Dll" DllEntry="GenerateSafePassword" Execute="immediate" Return="check" />
   </Fragment>
 </Wix>

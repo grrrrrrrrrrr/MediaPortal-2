@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
-     xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension">
+     xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
 
   <Fragment>
 
     <?include ..\Includes.wxi ?>
+
+    <!--
+    Properties containing the credentials, which will be used to create a new user account, which will be used for running the service.
+    todo: set attribute 'Hidden' to yes after tests succeeded.
+    -->
+    <Property Id="MP2ACCOUNT_USERNAME" Hidden="no" Value="MP2-Server account" />
+    <Property Id="MP2ACCOUNT_PASSWORD" Hidden="no" Value="auto_generated_password" />
 
     <!-- Directory definition -->
     <DirectoryRef Id="TeamMediaPortalFolder">
@@ -73,19 +81,31 @@
         </Component>
       </Directory>
 
+      <!-- The manages the additional user account, which is being created to be used by the MP2-Service. -->
+      <Component Id="cmpMP2user" Guid="E6AE5D11-BB23-4772-86C6-682A6B0F1EE4" KeyPath="yes">
+        <util:User Id="addNewUser" LogonAsService="yes" CreateUser="yes" UpdateIfExists="yes" PasswordNeverExpires="yes" RemoveOnUninstall="yes" PasswordExpired="no"
+                   Name="[MP2ACCOUNT_USERNAME]" Password="[MP2ACCOUNT_PASSWORD]" />
+      </Component>
+
+      <!-- The component contains the service executable and all it's configuration. -->
       <Component Id="Server.exe" Guid="3AF13E59-DC3A-4C6F-A0EB-89462019140C">
+        <!-- The executable and firewall configuration. -->
         <File Id="Server.exe" Name="MP2-Server.exe" KeyPath="yes" Checksum="yes">
           <fire:FirewallException Id="MP2ServerExTCPDom" Name="MP2-Server TCP Domain" Profile="domain" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
           <fire:FirewallException Id="MP2ServerExTCPPriv" Name="MP2-Server TCP Private" Profile="private" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
           <fire:FirewallException Id="MP2ServerExUDPDom" Name="MP2-Server UDP Domain" Profile="domain" Protocol="udp" Scope="any" IgnoreFailure="yes" />
           <fire:FirewallException Id="MP2ServerExUDPPriv" Name="MP2-Server UDP Private" Profile="private" Protocol="udp" Scope="any" IgnoreFailure="yes" />
         </File>
+        <!-- The service installation. -->
         <ServiceInstall Id="ServiceInstaller" Type="ownProcess" Vital="yes" Name="MP2-Server"
-            DisplayName="!(loc.Service_DisplayName)"
-            Description="!(loc.Service_Description)"
-            Start="auto" Account="LocalSystem" ErrorControl="ignore" Interactive="no" />
+                        DisplayName="!(loc.Service_DisplayName)"
+                        Description="!(loc.Service_Description)"
+                        Start="auto" ErrorControl="ignore" Interactive="no"
+                        Account=".\[MP2ACCOUNT_USERNAME]" Password="[MP2ACCOUNT_PASSWORD]" />
+        <!-- This stops the service before (un)install and starts after install. -->
         <ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="MP2-Server" Wait="yes" />
       </Component>
+
       <Component Id="MP2Server.config" Guid="1015AFE2-59B7-47B0-A1F8-F96053572A6F">
         <File Id="MP2Server.exe.config" Name="MP2-Server.exe.config" KeyPath="yes" Checksum="yes" />
       </Component>

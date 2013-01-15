@@ -149,6 +149,7 @@
       <Custom Action="ReadCustomPathsFromExistingPathsFile" Before="PrepareXmlPathVariables">(NOT Installed) AND (INSTALLTYPE_CUSTOM = 0)</Custom>
 
       <Custom Action="PrepareXmlPathVariables" Before="FileCost">NOT Installed</Custom>
+      <Custom Action="GenerateSafePassword" Before="InstallInitialize"/>
       <Custom Action="AttachClientToServer" After="InstallFinalize">NOT Installed</Custom>
 
       <!-- Uninstall Dokan during installation, if dokan is out of date -->

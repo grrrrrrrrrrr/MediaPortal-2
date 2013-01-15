@@ -52,9 +52,14 @@ namespace CustomActions
 {
   public class CustomActions
   {//Can publish up to 16 custom actions per DLL
+    #region Constants
+
+    private const string PROPERTY_PASSWORD = "MP2ACCOUNT_PASSWORD";
 
     protected static readonly string[] ClientPathLabels = new string[] { "DATA", "CONFIG", "LOG", "PLUGINS" };
     protected static readonly string[] ServerPathLabels = new string[] { "DATA", "CONFIG", "LOG", "PLUGINS", "DATABASE" };
+
+    #endregion
 
     protected class SessionLogWriter : TextWriter
     {
@@ -389,6 +394,40 @@ namespace CustomActions
         session[sessionKey] = currentPath;
         session.Log("{0} = {1}", sessionKey, currentPath);
       }
+    }
+
+    /// <summary>
+    /// Generates a password and sets it to the MSI property to be used for creating the account.
+    /// </summary>
+    /// <param name="session">Current installation session object.</param>
+    /// <returns><see cref="ActionResult.Success"/>.</returns>
+    [CustomAction]
+    public static ActionResult GenerateSafePassword(Session session)
+    {
+      session.Log("ServerRequestState : {0}", session.Features["Server"].RequestState);
+
+      if (session.Features["Server"].RequestState == InstallState.Local)
+      {
+        session[PROPERTY_PASSWORD] = GetSafePassword();
+        session.Log("Password for new user account has been generated.");
+      }
+      else
+        session.Log("Server is not being installed. No password generated.");
+
+      return ActionResult.Success;
+    }
+
+    /// <summary>
+    /// Generates a password.
+    /// </summary>
+    /// <returns>The generated password.</returns>
+    private static string GetSafePassword()
+    {
+      string pass;
+
+      pass = System.Web.Security.Membership.GeneratePassword(12, 4);
+
+      return pass;
     }
   }
 }

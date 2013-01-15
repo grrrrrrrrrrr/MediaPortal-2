@@ -40,6 +40,7 @@
       <ComponentRef Id="UserProfileDataManagement_create_1_0" />
       <ComponentRef Id="MediaLibrary_1_0_1_1" />
 
+      <ComponentRef Id="cmpMP2user" />
       <ComponentRef Id="Server.exe" />
       <ComponentRef Id="MP2Server.config" />
       <ComponentRef Id="Server.Registry.InstallDir" />
