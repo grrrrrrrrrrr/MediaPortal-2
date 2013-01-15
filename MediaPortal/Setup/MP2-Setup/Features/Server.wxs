@@ -8,6 +8,11 @@
 
     <?include ..\Includes.wxi ?>
 
+    <!-- Search and define the AdminGroup -->
+    <util:Group Id="AdministratorsGroup" Name="[WIX_ACCOUNT_ADMINISTRATORS]"/>
+    <!-- might be not needed
+    <util:Group Id="UserGroup" Name="[WIX_ACCOUNT_USERS]"/>
+    -->
     <!--
     Properties containing the credentials, which will be used to create a new user account, which will be used for running the service.
     todo: set attribute 'Hidden' to yes after tests succeeded.
@@ -83,8 +88,15 @@
 
       <!-- The manages the additional user account, which is being created to be used by the MP2-Service. -->
       <Component Id="cmpMP2user" Guid="E6AE5D11-BB23-4772-86C6-682A6B0F1EE4" KeyPath="yes">
+        <!-- Create the user -->
         <util:User Id="addNewUser" LogonAsService="yes" CreateUser="yes" UpdateIfExists="yes" PasswordNeverExpires="yes" RemoveOnUninstall="yes" PasswordExpired="no"
-                   Name="[MP2ACCOUNT_USERNAME]" Password="[MP2ACCOUNT_PASSWORD]" />
+                   Name="[MP2ACCOUNT_USERNAME]" Password="[MP2ACCOUNT_PASSWORD]">
+          <!-- Add user to admin group -->
+          <util:GroupRef Id="AdministratorsGroup"/>
+          <!-- might be not needed
+          <util:GroupRef Id="UserGroup"/>
+          -->
+        </util:User>
       </Component>
 
       <!-- The component contains the service executable and all it's configuration. -->
