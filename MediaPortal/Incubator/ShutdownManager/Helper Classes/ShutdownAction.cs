@@ -28,7 +28,6 @@ namespace MediaPortal.Plugins.ShutdownManager
   {
     Shutdown,
     Suspend,
-    Hibernate,
     Restart,
     Logoff,
     MinimizeMP,

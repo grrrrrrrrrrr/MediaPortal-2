@@ -74,7 +74,6 @@ namespace MediaPortal.Plugins.ShutdownManager.Settings
                               new ShutdownItem(ShutdownAction.Shutdown, true),
                               new ShutdownItem(ShutdownAction.Restart, true),
                               new ShutdownItem(ShutdownAction.CloseMP, true),
-                              new ShutdownItem(ShutdownAction.Hibernate, false),
                               new ShutdownItem(ShutdownAction.RestartMP, false),
                               new ShutdownItem(ShutdownAction.MinimizeMP, false),
                               new ShutdownItem(ShutdownAction.Logoff, false)

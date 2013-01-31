@@ -75,8 +75,6 @@ namespace MediaPortal.Plugins.ShutdownManager
           return RES_SYSTEM_SUSPEND_MENU_ITEM;
         case ShutdownAction.Shutdown:
           return RES_SYSTEM_SHUTDOWN_MENU_ITEM;
-        case ShutdownAction.Hibernate:
-          return RES_SYSTEM_HIBERNATE_MENU_ITEM;
         case ShutdownAction.Logoff:
           return RES_SYSTEM_LOGOFF_MENU_ITEM;
         case ShutdownAction.Restart:

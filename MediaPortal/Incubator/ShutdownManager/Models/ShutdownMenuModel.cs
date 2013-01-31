@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
-using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
@@ -134,52 +133,40 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       switch (action)
       {
         case ShutdownAction.Suspend:
-          ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Suspend Action has been executed");
-          // todo: chefkoch, 2013-01-01: already implemented in IScreenControl, should be moved to IPowerStateControl/ISystemControl maybe
-          //ServiceRegistration.Get<IScreenControl>().Suspend();
-          //ServiceRegistration.Get<IPowerStateControl>().Suspend();
+          //ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Suspend Action has been executed");
+          ServiceRegistration.Get<ISystemStateService>().Suspend();
           return;
 
         case ShutdownAction.Shutdown:
-          ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Shutdown Action has been executed");
-          // todo: chekoch, 2013-01-01: kind of a IPowerStateControl/ISystemControl needs to be implemented first
-          //ServiceRegistration.Get<IPowerStateControl>().Shutdown();
-          return;
-
-        case ShutdownAction.Hibernate:
-          ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Hibernate Action has been executed");
-          // todo: chekoch, 2013-01-01: kind of a IPowerStateControl/ISystemControl needs to be implemented first
-          //ServiceRegistration.Get<IPowerStateControl>().Hibernate();
+          //ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Shutdown Action has been executed");
+          ServiceRegistration.Get<ISystemStateService>().Shutdown();
           return;
 
         case ShutdownAction.Restart:
-          ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Restart Action has been executed");
-          // todo: chekoch, 2013-01-01: kind of a IPowerStateControl/ISystemControl needs to be implemented first
-          //ServiceRegistration.Get<IPowerStateControl>().Restart();
+          //ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Restart Action has been executed");
+          ServiceRegistration.Get<ISystemStateService>().Restart();
           return;
 
         case ShutdownAction.Logoff:
-          ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Logoff Action has been executed");
-          // todo: chekoch, 2013-01-01: kind of a IPowerStateControl/ISystemControl needs to be implemented first
-          //ServiceRegistration.Get<IPowerStateControl>().Logoff();
+          //ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Logoff Action has been executed");
+          ServiceRegistration.Get<ISystemStateService>().Logoff();
           return;
 
 
         case ShutdownAction.CloseMP:
-          ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Close MediaPortal Action has been executed");
-          // todo: chefkoch, 2012-12-15: already implemented in IScreenControl
-          //ServiceRegistration.Get<IScreenControl>().Shutdown();
+          //ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Close MediaPortal Action has been executed");
+          ServiceRegistration.Get<IScreenControl>().Shutdown();
           return;
 
         case ShutdownAction.MinimizeMP:
-          ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Minimize MediaPortal Action has been executed");
-          // todo: chefkoch, 2012-12-15: already implemented in IScreenControl
-          //ServiceRegistration.Get<IScreenControl>().Minimize();
+          //ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Minimize MediaPortal Action has been executed");
+          ServiceRegistration.Get<IScreenControl>().Minimize();
           return;
 
         case ShutdownAction.RestartMP:
           ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: Restart MediaPortal Action has been executed");
-          // todo: chefkoch, 2012-12-15: already implemented in IScreenControl
+          // todo: chefkoch, 2013-01-31: not implemented, yet
+          //ServiceRegistration.Get<IScreenControl>().Restart();
           return;
 
 
