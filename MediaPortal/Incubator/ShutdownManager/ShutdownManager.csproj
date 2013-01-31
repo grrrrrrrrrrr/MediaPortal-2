@@ -66,20 +66,13 @@
     <Compile Include="ShutdownManager.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Language\strings_en.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="plugin.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\workflow\shutdown-actions.xml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\dialogShutdown.xaml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Language\strings_en.xml" />
+    <Content Include="plugin.xml" />
+    <Content Include="Skin\default\screens\dialogShutdown.xaml" />
+    <Content Include="Skin\default\screens\dialogShutdownConfiguration.xaml" />
+    <Content Include="Skin\default\screens\dialogShutdownTimer.xaml" />
+    <Content Include="Skin\default\themes\default\styles\ShutdownStyles.xaml" />
+    <Content Include="Skin\default\workflow\shutdown-actions.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
@@ -98,21 +91,6 @@
       <Project>{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}</Project>
       <Name>SkinBase</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\dialogShutdownTimer.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\dialogShutdownConfiguration.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\themes\default\styles\ShutdownStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
