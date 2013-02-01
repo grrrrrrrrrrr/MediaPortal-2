@@ -23,8 +23,11 @@
 #endregion
 
 using System;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Timers;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -53,6 +56,8 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
 
     private const int ADDITIONAL_TIMEOUT = 1;
 
+    private static readonly int[] notifyIntervals = new int[] {1, 3, 5, 10, 30};
+
     #endregion
 
     #region Private fields
@@ -64,8 +69,13 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
 
     private AbstractProperty _customTimeoutProperty;
     private AbstractProperty _currentShutdownActionProperty;
+    private AbstractProperty _currentShutdownActionTextProperty;
+    private AbstractProperty _shutdownTimeProperty;
 
     protected AbstractProperty _isTimerActiveProperty = new WProperty(typeof(bool), false);
+
+    private Timer ShutDownTimer;
+    private Timer NotificationTimer;
 
     #endregion
 
@@ -84,6 +94,7 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
 
       // set shutdown action to last used one
       _currentShutdownIndex = _shutdownItemList.FindIndex(si => si.Action == settings.LastCustomShutdownAction);
+      CurrentShutdownAction = _shutdownItemList[_currentShutdownIndex].Action;
 
       // if last used shutdownaction has been disabled in the meanwhile, choose next one
       if (!_shutdownItemList[_currentShutdownIndex].Enabled)
@@ -99,20 +110,51 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       ShutdownSettings settings = settingsManager.Load<ShutdownSettings>();
 
-      settings.LastCustomShutdownAction = _shutdownItemList[_currentShutdownIndex].Action;
+      settings.LastCustomShutdownAction = CurrentShutdownAction;
       settings.LastCustomShutdownTime = CustomTimeout;
 
       settingsManager.Save(settings);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="timeout">Timout in min to execute the ShutdownAction.</param>
     private void PrepareTimer(int timeout)
     {
       SaveSettings();
 
       // activate shutdown timer
       ServiceRegistration.Get<ILogger>().Debug("ShutdownManager: PrepareTimer shutdownAction={0} timeOut={1}",
-        _shutdownItemList[_currentShutdownIndex].Action,
-        timeout);
+                                               _shutdownItemList[_currentShutdownIndex].Action,
+                                               timeout);
+
+      ShutDownTimer = new Timer(timeout*60*1000);
+      ShutDownTimer.Elapsed += TimerShutDown_Elapsed;
+      ShutDownTimer.AutoReset = false;
+      ShutDownTimer.Start();
+      // set property
+      ShutdownTime = DateTime.Now.AddMinutes(timeout);
+      // setup notification
+      SetupNotificationTimer();
+    }
+
+    private void SetupNotificationTimer()
+    {
+      int remaining = (int)Math.Truncate(ShutdownTime.Subtract(DateTime.Now).TotalMinutes) + 1;
+      int nextNotify = int.MinValue;
+      var res = notifyIntervals.Where(s => s < remaining);
+      if (res.Any())
+        nextNotify = res.Max();
+
+      if (nextNotify != int.MinValue)
+      {
+        NotificationTimer = new Timer();
+        NotificationTimer.Elapsed += NotificationTimer_Elapsed;
+        NotificationTimer.Interval = (remaining - nextNotify)*60*1000;
+        NotificationTimer.AutoReset = false;
+        NotificationTimer.Start();
+      }
     }
 
     /// <summary>
@@ -157,17 +199,32 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       }
     }
 
+    public AbstractProperty CurrentShutdownActionTextProperty
+    {
+      get { return _currentShutdownActionTextProperty; }
+    }
+
+    public string CurrentShutdownActionText
+    {
+      get { return (string)_currentShutdownActionTextProperty.GetValue(); }
+      set
+      {
+        _currentShutdownActionTextProperty.SetValue(value);
+      }
+    }
+
     public AbstractProperty CurrentShutdownActionProperty
     {
       get { return _currentShutdownActionProperty; }
     }
 
-    public string CurrentShutdownAction
+    public ShutdownAction CurrentShutdownAction
     {
-      get { return (string)_currentShutdownActionProperty.GetValue(); }
+      get { return (ShutdownAction)_currentShutdownActionProperty.GetValue(); }
       set
       {
         _currentShutdownActionProperty.SetValue(value);
+        CurrentShutdownActionText = Consts.GetResourceIdentifierForMenuItem(value);
         UpdateTimerActions();
       }
     }
@@ -187,6 +244,23 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
     {
       get { return (bool)_isTimerActiveProperty.GetValue(); }
       set { _isTimerActiveProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the ShutdownTime property.
+    /// </summary>
+    public AbstractProperty ShutdownTimeProperty
+    {
+      get { return _shutdownTimeProperty; }
+    }
+
+    /// <summary>
+    /// Represents the time, when the shutdown action will be executed
+    /// </summary>
+    public DateTime ShutdownTime
+    {
+      get { return (DateTime)_shutdownTimeProperty.GetValue(); }
+      set { _shutdownTimeProperty.SetValue(value); }
     }
 
     #endregion
@@ -210,7 +284,7 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
         oldIndex, _shutdownItemList[oldIndex].Action,
         _currentShutdownIndex, _shutdownItemList[_currentShutdownIndex].Action);
 
-      CurrentShutdownAction = Consts.GetResourceIdentifierForMenuItem(_shutdownItemList[_currentShutdownIndex].Action);
+      CurrentShutdownAction = _shutdownItemList[_currentShutdownIndex].Action;
 
       // done when setting current shutdownaction
       //UpdateTimerActions();
@@ -294,6 +368,21 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
       _timerActions.Add(newItem);
     }
 
+    void TimerShutDown_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      ShutdownAction action = _shutdownItemList[_currentShutdownIndex].Action;
+      ShutdownMenuModel.DoAction(action);
+    }
+
+    void NotificationTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
+      string header = LocalizationHelper.Translate(Consts.RES_SHUTDOWN_TIMER_NOTIFY_HEADER);
+      string text = Consts.GetTimerMessage(CurrentShutdownAction, ShutdownTime);
+      dialogManager.ShowDialog(header, text, DialogType.OkDialog, false, DialogButtonType.Ok);
+      SetupNotificationTimer();
+    }
+
     #region IWorkflowModel implementation
 
     public Guid ModelId
@@ -309,7 +398,9 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       _customTimeoutProperty = new WProperty(typeof(int), 120);
-      _currentShutdownActionProperty = new WProperty(typeof(string), Consts.GetResourceIdentifierForMenuItem(ShutdownAction.Suspend));
+      _currentShutdownActionProperty = new WProperty(typeof(ShutdownAction), ShutdownAction.Suspend);
+      _currentShutdownActionTextProperty = new WProperty(typeof(string), Consts.GetResourceIdentifierForMenuItem(ShutdownAction.Suspend));
+      _shutdownTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
       _timerActions = new ItemsList();
       // Load settings
       GetShutdownActionsFromSettings();
@@ -318,10 +409,12 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      _timerActions.Clear();
-      _timerActions = null;
-      _customTimeoutProperty = null;
-      _currentShutdownActionProperty = null;
+      //_timerActions.Clear();
+      //_timerActions = null;
+      //_customTimeoutProperty = null;
+      //_currentShutdownActionProperty = null;
+      //_currentShutdownActionTextProperty = null;
+      //_shutdownTimeProperty = null;
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)

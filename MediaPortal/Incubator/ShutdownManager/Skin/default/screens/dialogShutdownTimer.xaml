@@ -62,7 +62,7 @@
                 Grid.ColumnSpan="2"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Content="{Binding CurrentShutdownAction}"
+                Content="{Binding CurrentShutdownActionText}"
                 Command="{Command ToggleShutdownAction}" />
 
         <ListView Grid.Column="0"

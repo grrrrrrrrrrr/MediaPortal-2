@@ -40,6 +40,8 @@ namespace MediaPortal.Plugins.ShutdownManager
     public const string RES_SHUTDOWN_TIMER_SETUP_MENU_ITEM = "[ShutdownMenu.TimerSetup]";
     public const string RES_SHUTDOWN_TIMER_CANCEL_MENU_ITEM = "[ShutdownMenu.TimerCancel]";
 
+    public const string RES_SHUTDOWN_TIMER_NOTIFY_HEADER = "[ShutdownTimer.Notify.Header]";
+
     public const string RES_SYSTEM_HIBERNATE_MENU_ITEM = "[ShutdownMenu.Hibernate]";
     public const string RES_SYSTEM_SHUTDOWN_MENU_ITEM = "[ShutdownMenu.Shutdown]";
     public const string RES_SYSTEM_SUSPEND_MENU_ITEM = "[ShutdownMenu.Suspend]";
@@ -93,6 +95,11 @@ namespace MediaPortal.Plugins.ShutdownManager
         default:
           return string.Empty;
       }
+    }
+
+    public static string GetTimerMessage(ShutdownAction shutdownAction, DateTime shutdownTime)
+    {
+      return String.Format("{0} in {1} min", shutdownAction, shutdownTime.Subtract(DateTime.Now).TotalMinutes);
     }
   }
 }

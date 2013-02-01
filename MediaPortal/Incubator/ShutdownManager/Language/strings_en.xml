@@ -10,6 +10,8 @@
   <string name="ShutdownMenu.TimerSetup">Define custom shutdown timer...</string>
   <string name="ShutdownMenu.TimerCancel">Cancel custom shutdown timer...</string>
 
+  <string name="ShutdownTimer.Notify.Header">ShutdownTimer</string>
+
   <string name="ShutdownMenu.Hibernate">Hibernate</string>
   <string name="ShutdownMenu.Shutdown">Shutdown</string>
   <string name="ShutdownMenu.Suspend">Suspend</string>
