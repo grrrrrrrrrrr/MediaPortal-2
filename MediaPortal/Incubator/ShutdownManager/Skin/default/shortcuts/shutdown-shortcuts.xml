@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Shortcut DescriptorVersion="1.0">
+  <WorkflowActions>
+    <!-- Name="Home->ShutdownMain" -->
+    <Shortcut Key="S:Power" WorkflowAction="72480EE1-64D7-4BD5-943C-22C6DE2D4A9D" />
+  </WorkflowActions>
+  <WorkflowActions>
+    <!-- Name="Home->ShutdownTimerMain" -->
+  </WorkflowActions>
+</Shortcut>

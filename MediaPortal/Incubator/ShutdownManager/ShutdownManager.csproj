@@ -71,6 +71,7 @@
     <Content Include="Skin\default\screens\dialogShutdown.xaml" />
     <Content Include="Skin\default\screens\dialogShutdownConfiguration.xaml" />
     <Content Include="Skin\default\screens\dialogShutdownTimer.xaml" />
+    <Content Include="Skin\default\shortcuts\shutdown-shortcuts.xml" />
     <Content Include="Skin\default\themes\default\styles\ShutdownStyles.xaml" />
     <Content Include="Skin\default\workflow\shutdown-actions.xml" />
   </ItemGroup>
