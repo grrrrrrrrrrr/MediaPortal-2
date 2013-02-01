@@ -45,30 +45,19 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
 
     #region Private fields
 
-    private List<ShutdownItem> _shutdownItemList = null;
     private ItemsList _shutdownItems = null;
+
+    public ShutdownMenuModel()
+    {
+      ShutdownItemList = null;
+    }
 
     #endregion
 
-    /// <summary>
-    /// gets or sets the Locations
-    /// </summary>
-    private List<ShutdownItem> ShutdownItemList
-    {
-      get { return _shutdownItemList; }
-      set
-      {
-        _shutdownItemList = value;
-        if (_shutdownItemList == null)
-          return;
-      }
-    }
+    private List<ShutdownItem> ShutdownItemList { get; set; }
 
     #region Private members
 
-    /// <summary>
-    /// Loads all locations from the settings.
-    /// </summary>
     private void GetShutdownActionsFromSettings()
     {
       ShutdownSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ShutdownSettings>();
@@ -87,7 +76,7 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
         int? i = oIndex as int?;
         if (i.HasValue)
         {
-          action = _shutdownItemList[i.Value].Action;
+          action = ShutdownItemList[i.Value].Action;
           return true;
         }
       }
@@ -97,11 +86,11 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
     private void UpdateShutdownItems()
     {
       _shutdownItems.Clear();
-      if (_shutdownItemList != null)
+      if (ShutdownItemList != null)
       {
-        for (int i = 0; i < _shutdownItemList.Count; i++)
+        for (int i = 0; i < ShutdownItemList.Count; i++)
         {
-          ShutdownItem si = _shutdownItemList[i];
+          ShutdownItem si = ShutdownItemList[i];
 
           // hide disabled items
           if (!si.Enabled)
@@ -217,7 +206,7 @@ namespace MediaPortal.Plugins.ShutdownManager.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      _shutdownItemList = new List<ShutdownItem>();
+      ShutdownItemList = new List<ShutdownItem>();
       _shutdownItems = new ItemsList();
       //// Load settings
       GetShutdownActionsFromSettings();
