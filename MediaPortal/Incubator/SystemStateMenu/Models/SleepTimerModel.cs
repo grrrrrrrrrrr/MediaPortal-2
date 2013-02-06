@@ -128,6 +128,10 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
                                                _shutdownItemList[_currentActionIndex].Action,
                                                timeout);
 
+      // stop and close existing timer
+      if (!ReferenceEquals(_sleepTimer, null))
+        _sleepTimer.Close();
+      // set up new timer
       _sleepTimer = new Timer(timeout*60*1000);
       _sleepTimer.Elapsed += TimerShutDown_Elapsed;
       _sleepTimer.AutoReset = false;
@@ -148,6 +152,10 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
 
       if (nextNotify != int.MinValue)
       {
+        // stop and close existing timer
+        if (!ReferenceEquals(_notificationTimer, null))
+          _notificationTimer.Close();
+        // set up new timer
         _notificationTimer = new Timer();
         _notificationTimer.Elapsed += NotificationTimer_Elapsed;
         _notificationTimer.Interval = (remaining - nextNotify)*60*1000;
